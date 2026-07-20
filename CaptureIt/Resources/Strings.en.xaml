@@ -19,7 +19,10 @@
     <sys:String x:Key="Main.Delay10">10 sec</sys:String>
     <sys:String x:Key="Main.Tip.Region">Drag to capture any area of the screen</sys:String>
     <sys:String x:Key="Main.Tip.Window">Capture a single window with one click</sys:String>
-    <sys:String x:Key="Main.Tip.Full">Capture the entire screen</sys:String>
+    <sys:String x:Key="Main.Tip.Full">Capture the whole screen (with multiple monitors you can pick which one)</sys:String>
+    <sys:String x:Key="Full.All">All monitors</sys:String>
+    <sys:String x:Key="Full.Screen">Screen {0}</sys:String>
+    <sys:String x:Key="Full.Primary">(primary)</sys:String>
     <sys:String x:Key="Main.Tip.History">Open the capture list: view and edit everything you captured</sys:String>
     <sys:String x:Key="Main.Tip.Folder">Open the save folder</sys:String>
     <sys:String x:Key="Main.Tip.Settings">Settings</sys:String>

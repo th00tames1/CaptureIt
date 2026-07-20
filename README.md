@@ -43,11 +43,11 @@ Made by **Heechan Jeong** · MIT License
 | Region | Screen freezes; drag to select any area | `Ctrl+Shift+A` |
 | UI element | Hover highlights buttons/images/panels; one click captures | `Ctrl+Shift+E` |
 | Window | Hover highlights a window; one click captures it | `Ctrl+Shift+W` |
-| Full screen | Every monitor at once | `Ctrl+Shift+F` |
-| Scrolling | Drag over scrolling content; auto-scrolls and stitches a long page | `Ctrl+Shift+S` |
-| Fixed size | A resizable frame parked on screen — drag its corners or type exact W×H, then Enter / double-click | `Ctrl+Shift+D` |
+| Full screen | Every monitor at once; with multiple monitors, pick a specific screen or all | `Ctrl+Shift+F` |
+| Scrolling | Click a window; it auto-scrolls to the bottom and stitches one long image | `Ctrl+Shift+S` |
+| Fixed size | A pinned frame with round corner grips: drag the corners/edges diagonally or type an exact W×H, then Enter / double-click | `Ctrl+Shift+D` |
 | Repeat last region | Instantly re-captures the previous region | `Ctrl+Shift+R` |
-| Delayed | 3/5/10 s timer for menus and popups | — |
+| Delayed | Pick the area first, then a 3/5/10 s countdown captures the live screen (great for open menus) | (in-app) |
 
 > If a preferred hotkey is taken by another app, CaptureIt automatically falls back to
 > `Ctrl+Alt+…`, then `Alt+Shift+…`, and shows the actually-registered keys in the UI.
@@ -109,7 +109,7 @@ Release binaries are produced automatically by
 ## Known limitations
 
 - Windows: on multi-monitor setups with *different* DPI scales, region coordinates can be slightly off.
-- Windows scrolling capture stops early if the selected area contains a sticky header — drag over the content that actually scrolls.
+- Scrolling capture drives the window's own scrollbar, so pages that hijack the wheel (some slideshows/maps) may not stitch cleanly.
 - The macOS/Linux edition is built in CI; day-to-day testing happens on Windows. Please [report issues](https://github.com/th00tames1/CaptureIt/issues).
 
 ## License

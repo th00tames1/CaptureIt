@@ -254,8 +254,42 @@ public partial class MainWindow : Window
 
     private async void RegionCapture_Click(object sender, RoutedEventArgs e) => await StartRegionCapture();
     private async void WindowCapture_Click(object sender, RoutedEventArgs e) => await StartWindowCapture();
-    private async void FullCapture_Click(object sender, RoutedEventArgs e) => await StartFullCapture();
     private async void ElementCapture_Click(object sender, RoutedEventArgs e) => await StartElementCapture();
+
+    /// <summary>전체 캡처 버튼: 모니터가 여러 대면 어느 화면을 캡처할지 메뉴로 고른다.</summary>
+    private void FullCapture_Click(object sender, RoutedEventArgs e)
+    {
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        if (screens.Length <= 1) { _ = StartFullCaptureOf(null); return; }
+
+        var menu = new System.Windows.Controls.ContextMenu { FontFamily = new System.Windows.Media.FontFamily("Malgun Gothic") };
+        var all = new System.Windows.Controls.MenuItem { Header = Loc.Get("Full.All"), FontWeight = FontWeights.SemiBold };
+        all.Click += (_, _) => _ = StartFullCaptureOf(null);
+        menu.Items.Add(all);
+        menu.Items.Add(new System.Windows.Controls.Separator());
+
+        // 왼→오, 위→아래 순으로 번호를 매겨 사용자 화면 배치와 직관적으로 맞춘다
+        var ordered = screens
+            .Select((s, idx) => (s, idx))
+            .OrderBy(t => t.s.Bounds.Y).ThenBy(t => t.s.Bounds.X)
+            .ToList();
+        int n = 1;
+        foreach (var (s, _) in ordered)
+        {
+            var b = s.Bounds;
+            string label = Loc.F("Full.Screen", n++) +
+                           (s.Primary ? " " + Loc.Get("Full.Primary") : "") +
+                           $"   {b.Width}×{b.Height}";
+            var item = new System.Windows.Controls.MenuItem { Header = label };
+            var rect = new System.Drawing.Rectangle(b.X, b.Y, b.Width, b.Height);
+            item.Click += (_, _) => _ = StartFullCaptureOf(rect);
+            menu.Items.Add(item);
+        }
+
+        menu.PlacementTarget = BtnFull;
+        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        menu.IsOpen = true;
+    }
     private async void ScrollCapture_Click(object sender, RoutedEventArgs e) => await StartScrollCapture();
 
     private void FixedCapture_Click(object sender, RoutedEventArgs e) => ToggleViewfinder();
@@ -684,7 +718,11 @@ public partial class MainWindow : Window
         finally { FinishCapture(canceled); }
     }
 
-    public async Task StartFullCapture()
+    /// <summary>전체 캡처 (단축키·트레이·반복): 모든 모니터를 한 장으로.</summary>
+    public Task StartFullCapture() => StartFullCaptureOf(null);
+
+    /// <summary>bounds가 지정되면 그 모니터만, null이면 전체 가상 화면을 캡처한다.</summary>
+    public async Task StartFullCaptureOf(System.Drawing.Rectangle? bounds)
     {
         if (!await PrepareCaptureAsync()) return;
         bool canceled = false;
@@ -692,8 +730,9 @@ public partial class MainWindow : Window
         {
             S.LastCaptureMode = "Full";
             var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var rect = bounds ?? new System.Drawing.Rectangle(v.X, v.Y, v.Width, v.Height);
             // 딜레이가 있으면 카운트다운 뒤 라이브 화면을, 없으면 즉시 캡처
-            var img = await CaptureLiveAfterDelayAsync(new System.Drawing.Rectangle(v.X, v.Y, v.Width, v.Height));
+            var img = await CaptureLiveAfterDelayAsync(rect);
             if (img != null) await HandleCaptured(img);
             else canceled = true;
         }

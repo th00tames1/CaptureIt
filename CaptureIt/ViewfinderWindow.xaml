@@ -7,11 +7,6 @@
         MinWidth="310" MinHeight="150"
         FontFamily="Malgun Gothic" UseLayoutRounding="True"
         KeyDown="Window_KeyDown">
-    <WindowChrome.WindowChrome>
-        <!-- 무테 창에서 가장자리 드래그로 크기 조절 -->
-        <WindowChrome ResizeBorderThickness="12" CaptionHeight="0"
-                      GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
-    </WindowChrome.WindowChrome>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -23,11 +18,14 @@
             <!-- 가장자리 히트 스트립: 거의 투명하지만 히트 테스트가 잡혀 크기 조절이 가능하다.
                  중앙은 완전 투명(배경 없음)이라 클릭이 아래 앱으로 통과한다.
                  하단 스트립은 창 바닥(칩 영역)과 떨어져 있어 WM_NCLBUTTONDOWN으로 직접 리사이즈를 시작한다. -->
-            <Border Background="#01FFFFFF" Height="12" VerticalAlignment="Top"/>
-            <Border x:Name="BottomStrip" Background="#01FFFFFF" Height="12" VerticalAlignment="Bottom"
-                    Cursor="SizeNS" MouseLeftButtonDown="BottomStrip_MouseDown"/>
-            <Border Background="#01FFFFFF" Width="12" HorizontalAlignment="Left"/>
-            <Border Background="#01FFFFFF" Width="12" HorizontalAlignment="Right"/>
+            <Border Background="#01FFFFFF" Height="12" VerticalAlignment="Top"
+                    Cursor="SizeNS" Tag="top" MouseLeftButtonDown="Edge_MouseDown"/>
+            <Border Background="#01FFFFFF" Height="12" VerticalAlignment="Bottom"
+                    Cursor="SizeNS" Tag="bottom" MouseLeftButtonDown="Edge_MouseDown"/>
+            <Border Background="#01FFFFFF" Width="12" HorizontalAlignment="Left"
+                    Cursor="SizeWE" Tag="left" MouseLeftButtonDown="Edge_MouseDown"/>
+            <Border Background="#01FFFFFF" Width="12" HorizontalAlignment="Right"
+                    Cursor="SizeWE" Tag="right" MouseLeftButtonDown="Edge_MouseDown"/>
 
             <!-- 보이는 프레임 (표시 전용). 그림자·둥근 모서리는 캡처 영역 안쪽으로
                  번져 결과물에 찍히므로 쓰지 않는다 — 또렷한 직사각 테두리만. -->
@@ -35,6 +33,20 @@
 
             <!-- 실제 캡처되는 안쪽 영역 (좌표 계산용, 렌더링 없음) -->
             <Grid x:Name="InnerArea" Margin="9" IsHitTestVisible="False"/>
+
+            <!-- 꼭지점 원형 핸들: 여기서 대각선으로 끌어 크기를 조절한다 -->
+            <Ellipse Width="16" Height="16" Fill="White" Stroke="#2D7DF6" StrokeThickness="2.4"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-1,-1,0,0"
+                     Cursor="SizeNWSE" Tag="13" MouseLeftButtonDown="Corner_MouseDown"/>
+            <Ellipse Width="16" Height="16" Fill="White" Stroke="#2D7DF6" StrokeThickness="2.4"
+                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-1,-1,0"
+                     Cursor="SizeNESW" Tag="14" MouseLeftButtonDown="Corner_MouseDown"/>
+            <Ellipse Width="16" Height="16" Fill="White" Stroke="#2D7DF6" StrokeThickness="2.4"
+                     HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-1,0,0,-1"
+                     Cursor="SizeNESW" Tag="16" MouseLeftButtonDown="Corner_MouseDown"/>
+            <Ellipse Width="16" Height="16" Fill="White" Stroke="#2D7DF6" StrokeThickness="2.4"
+                     HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-1,-1"
+                     Cursor="SizeNWSE" Tag="17" MouseLeftButtonDown="Corner_MouseDown"/>
         </Grid>
 
         <!-- ── 컨트롤 칩 ── -->

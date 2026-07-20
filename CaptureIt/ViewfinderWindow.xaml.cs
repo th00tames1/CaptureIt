@@ -32,6 +32,8 @@ public partial class ViewfinderWindow : Window
         Loaded += (_, _) => { RestorePlacement(); SyncBoxes(); Activate(); };
         SizeChanged += (_, _) => SyncBoxes();
         Closing += (_, _) => SavePlacement();
+        MouseMove += Window_MouseMove;
+        MouseLeftButtonUp += Window_MouseUp;
     }
 
     // ── 배치/크기 ─────────────────────────────────────────────────────────
@@ -49,19 +51,84 @@ public partial class ViewfinderWindow : Window
         WindowLayout.ClampToWorkArea(this);
     }
 
-    // ── 하단 가장자리 리사이즈 (칩이 창 바닥을 차지해 WindowChrome이 못 잡는 부분) ──
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern IntPtr SendMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern bool ReleaseCapture();
+    // ── 수동 리사이즈 (꼭지점 원형 핸들 + 하단 가장자리) ──────────────────
+    // WM_NCLBUTTONDOWN 네이티브 방식 대신 마우스 캡처로 직접 계산해 부드럽고 예측 가능하게.
+    private enum ResizeEdge { None, TL, TR, BL, BR, Left, Right, Top, Bottom }
+    private ResizeEdge _resizeEdge = ResizeEdge.None;
+    private Point _resizeStartScreen;   // 물리 px
+    private Rect _resizeStartRect;      // DIU (Left/Top/Width/Height)
 
-    private void BottomStrip_MouseDown(object sender, MouseButtonEventArgs e)
+    /// <summary>꼭지점 원형 핸들 드래그: Tag(13=TL,14=TR,16=BL,17=BR)로 대각 리사이즈.</summary>
+    private void Corner_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        const int WM_NCLBUTTONDOWN = 0x00A1, HTBOTTOM = 15;
-        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        ReleaseCapture();
-        SendMessage(hwnd, WM_NCLBUTTONDOWN, (IntPtr)HTBOTTOM, IntPtr.Zero);
+        if (sender is System.Windows.FrameworkElement { Tag: string tag })
+        {
+            _resizeEdge = tag switch
+            {
+                "13" => ResizeEdge.TL, "14" => ResizeEdge.TR,
+                "16" => ResizeEdge.BL, "17" => ResizeEdge.BR, _ => ResizeEdge.None
+            };
+            BeginResize(e);
+        }
         e.Handled = true;
+    }
+
+    private void Edge_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is System.Windows.FrameworkElement { Tag: string tag })
+        {
+            _resizeEdge = tag switch
+            {
+                "left" => ResizeEdge.Left, "right" => ResizeEdge.Right,
+                "top" => ResizeEdge.Top, "bottom" => ResizeEdge.Bottom, _ => ResizeEdge.None
+            };
+            BeginResize(e);
+        }
+        e.Handled = true;
+    }
+
+    private void BeginResize(MouseButtonEventArgs e)
+    {
+        if (_resizeEdge == ResizeEdge.None) return;
+        _resizeStartScreen = PointToScreen(e.GetPosition(this));
+        _resizeStartRect = new Rect(Left, Top, Width, Height);
+        CaptureMouse();
+    }
+
+    private void Window_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (_resizeEdge == ResizeEdge.None || !IsMouseCaptured) return;
+
+        var cur = PointToScreen(e.GetPosition(this));
+        double dx = (cur.X - _resizeStartScreen.X) / _scale;   // 물리 px → DIU
+        double dy = (cur.Y - _resizeStartScreen.Y) / _scale;
+
+        double nx = _resizeStartRect.X, ny = _resizeStartRect.Y;
+        double nw = _resizeStartRect.Width, nh = _resizeStartRect.Height;
+
+        bool left = _resizeEdge is ResizeEdge.TL or ResizeEdge.BL or ResizeEdge.Left;
+        bool top = _resizeEdge is ResizeEdge.TL or ResizeEdge.TR or ResizeEdge.Top;
+        bool right = _resizeEdge is ResizeEdge.TR or ResizeEdge.BR or ResizeEdge.Right;
+        bool bottom = _resizeEdge is ResizeEdge.BL or ResizeEdge.BR or ResizeEdge.Bottom;
+
+        if (left) { nx += dx; nw -= dx; }
+        if (right) { nw += dx; }
+        if (top) { ny += dy; nh -= dy; }
+        if (bottom) { nh += dy; }
+
+        // 최소 크기 보장 (왼쪽/위 가장자리는 위치도 함께 보정)
+        if (nw < MinWidth) { if (left) nx -= (MinWidth - nw); nw = MinWidth; }
+        if (nh < MinHeight) { if (top) ny -= (MinHeight - nh); nh = MinHeight; }
+
+        Left = nx; Top = ny; Width = nw; Height = nh;
+    }
+
+    private void Window_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (_resizeEdge == ResizeEdge.None) return;
+        _resizeEdge = ResizeEdge.None;
+        if (IsMouseCaptured) ReleaseMouseCapture();
+        SavePlacement();
     }
 
     private void SavePlacement()

@@ -19,7 +19,10 @@
     <sys:String x:Key="Main.Delay10">10초 후</sys:String>
     <sys:String x:Key="Main.Tip.Region">원하는 영역을 드래그해서 캡처합니다</sys:String>
     <sys:String x:Key="Main.Tip.Window">클릭한 창만 캡처합니다</sys:String>
-    <sys:String x:Key="Main.Tip.Full">화면 전체를 캡처합니다</sys:String>
+    <sys:String x:Key="Main.Tip.Full">화면 전체를 캡처합니다 (모니터가 여러 대면 어느 화면을 캡처할지 고를 수 있습니다)</sys:String>
+    <sys:String x:Key="Full.All">전체 (모든 모니터)</sys:String>
+    <sys:String x:Key="Full.Screen">{0}번 모니터</sys:String>
+    <sys:String x:Key="Full.Primary">(기본)</sys:String>
     <sys:String x:Key="Main.Tip.History">캡처 목록 열기: 지금까지 캡처한 이미지를 보고 편집합니다</sys:String>
     <sys:String x:Key="Main.Tip.Folder">저장 폴더 열기</sys:String>
     <sys:String x:Key="Main.Tip.Settings">설정</sys:String>

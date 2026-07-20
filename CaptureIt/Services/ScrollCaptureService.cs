@@ -10,11 +10,12 @@ namespace CaptureIt.Services;
 /// </summary>
 public static class ScrollCaptureService
 {
-    private const int MaxFrames = 80;
-    private const int MaxTotalHeight = 30000;
+    private const int MaxFrames = 220;        // 긴 페이지 대비 (기존 80은 중간에 잘림)
+    private const int MaxTotalHeight = 60000;
     private const int MinScrollPx = 8;        // 이보다 작은 이동은 무시
-    private const int SettleDelayMs = 400;    // 스크롤 애니메이션 대기
+    private const int SettleDelayMs = 450;    // 스크롤 애니메이션 대기
     private const int MinAnchors = 5;         // 겹침 검증에 필요한 최소 고유 행 수
+    private const int BottomConfirm = 3;      // '변화 없음'이 이만큼 연속되면 바닥으로 확정
 
     /// <summary>
     /// region: 물리 픽셀 절대 좌표의 캡처 영역 (보통 창의 클라이언트 영역).
@@ -26,22 +27,23 @@ public static class ScrollCaptureService
         int w = region.Width, h = region.Height;
         if (w < 50 || h < 80) return null;
 
-        // 영역 높이에 맞춘 휠 세기: 한 번에 화면의 절반 이하만 스크롤되게 (겹침 확보)
-        int notches = Math.Clamp((h - 60) / 240, 1, 3);
+        // 휠 세기: 한 번에 조금씩만 스크롤해 겹침을 넉넉히 확보한다(측정 신뢰도 ↑).
+        int notches = Math.Clamp((h - 60) / 300, 1, 2);
 
         var contentRows = new List<byte[]>();   // 고정 밴드를 뺀 본문 행 누적 (BGRA, w*4)
         byte[][]? firstFrame = null, lastFrame = null;
         ulong[]? prevHashes = null;
         int fixedTop = -1, fixedBottom = 0;     // 첫 스크롤 쌍에서 감지 (-1 = 미정)
-        int stagnant = 0;
-        bool scrolledAtLeastOnce = false;
+        int lastGoodOffset = 0;                 // 측정 실패 시 이어붙일 추정치
+        int bottomHits = 0;                     // 연속 '변화 없음' (바닥 후보)
+        bool firstContentAdded = false;
 
         CaptureService.GetCursorPosition(out var savedCursor);
         try
         {
-            // 커서 위치: 해시 밴드(중앙 60%) 밖이면서 실제로 스크롤되는 본문 위여야 한다.
-            // 구석은 상태바·스크롤바라 휠이 안 먹는 경우가 있어, 우측 20% 지대의 세로 중앙에 둔다.
-            int cursorX = region.X + Math.Min(w - w / 5 + Math.Min(24, w / 12), w - 4);
+            // 커서는 스크롤이 확실히 먹도록 본문 중앙에 둔다. GDI 캡처는 커서를 담지 않으므로
+            // 커서 자체는 결과에 안 찍히고, 호버 변화는 소폭이라 불일치 허용치 안에서 흡수된다.
+            int cursorX = region.X + w / 2;
             int cursorY = region.Y + h / 2;
 
             for (int frame = 0; frame < MaxFrames; frame++)
@@ -62,36 +64,45 @@ public static class ScrollCaptureService
                 else
                 {
                     var prev = prevHashes;
-                    var (offset, ft, fb) = await Task.Run(() =>
+                    var (identical, offset, ct, cb) = await Task.Run(() =>
                     {
-                        // 고정 밴드는 첫 스크롤 쌍에서 한 번만 감지해 계속 쓴다 (페이지 구조 불변 가정)
                         int top = fixedTop, bottom = fixedBottom;
                         if (top < 0) (top, bottom) = DetectFixedBands(prev, curHashes, h);
-                        int d = FindScrollOffset(prev, curHashes, top, h - bottom);
-                        return (d, top, bottom);
+                        top = Math.Max(0, top); bottom = Math.Max(0, bottom);
+                        bool same = ContentIdentical(prev, curHashes, top, h - bottom);
+                        int d = same ? 0 : FindScrollOffset(prev, curHashes, top, h - bottom);
+                        if (d <= 0 && !same) d = EstimateScrollOffset(prev, curHashes, top, h - bottom);
+                        return (same, d, top, bottom);
                     });
+                    fixedTop = ct; fixedBottom = cb;
+                    int contentTop = ct, contentBot = h - cb;
 
-                    if (offset <= 0)
+                    if (identical)
                     {
-                        // 스크롤이 안 됐거나 감지 실패 — 휠을 다시 굴려 한 번 더 시도 후 종료
-                        stagnant++;
-                        if (stagnant >= 2) break;
-                        CaptureService.WheelDownAt(cursorX, cursorY, notches);
-                        if (await EscapePressedDuringDelay(SettleDelayMs)) break;
-                        continue;
+                        // 스크롤이 아직 반영 안 됐거나 바닥. 점점 강하게 밀어 바닥을 확인한다.
+                        bottomHits++;
+                        if (bottomHits >= BottomConfirm) break;   // 진짜 끝
+                        CaptureService.WheelDownAt(cursorX, cursorY, notches + bottomHits);
+                        if (await EscapePressedDuringDelay(SettleDelayMs + 150 * bottomHits)) break;
+                        continue;   // prev 유지, 다시 비교 (여기서는 append 안 함)
+                    }
+                    bottomHits = 0;
+
+                    // 첫 본문(첫 프레임의 본문 밴드)을 아직 안 넣었다면 지금 넣는다
+                    if (!firstContentAdded)
+                    {
+                        for (int i = contentTop; i < contentBot; i++) contentRows.Add(firstFrame![i]);
+                        firstContentAdded = true;
                     }
 
-                    if (!scrolledAtLeastOnce)
-                    {
-                        // 첫 스크롤 확정: 고정 밴드를 채택하고 첫 프레임의 본문을 넣는다
-                        fixedTop = ft;
-                        fixedBottom = fb;
-                        scrolledAtLeastOnce = true;
-                        for (int i = fixedTop; i < h - fixedBottom; i++) contentRows.Add(firstFrame![i]);
-                    }
+                    // 측정 실패면 직전 정상 오프셋(없으면 보수적 추정)으로라도 이어붙여 '멈추지 않게' 한다
+                    int step = offset > 0
+                        ? offset
+                        : (lastGoodOffset > 0 ? lastGoodOffset
+                                              : Math.Clamp(notches * 48, 20, (contentBot - contentTop) / 2));
+                    if (offset > 0) lastGoodOffset = offset;
 
-                    stagnant = 0;
-                    for (int i = h - fixedBottom - offset; i < h - fixedBottom; i++) contentRows.Add(curFrame[i]);
+                    for (int i = contentBot - step; i < contentBot; i++) contentRows.Add(curFrame[i]);
                     if (contentRows.Count >= MaxTotalHeight) break;
                 }
 
@@ -113,13 +124,14 @@ public static class ScrollCaptureService
         // 최종 합성: 상단 고정 밴드(첫 프레임) + 본문 + 하단 고정 밴드(마지막 프레임)
         return await Task.Run(() =>
         {
+            int top = Math.Max(0, fixedTop), bottom = Math.Max(0, fixedBottom);
             var rows = new List<byte[]>(contentRows.Count + h);
-            if (scrolledAtLeastOnce)
+            if (firstContentAdded)
             {
-                for (int i = 0; i < fixedTop; i++) rows.Add(firstFrame[i]);
+                for (int i = 0; i < top; i++) rows.Add(firstFrame[i]);
                 rows.AddRange(contentRows);
                 var tail = lastFrame ?? firstFrame;
-                for (int i = h - fixedBottom; i < h; i++) rows.Add(tail[i]);
+                for (int i = h - bottom; i < h; i++) rows.Add(tail[i]);
             }
             else
             {
@@ -245,6 +257,43 @@ public static class ScrollCaptureService
             if (!failed && anchors >= Math.Min(MinAnchors, Math.Max(1, uniqueTotal / 4)))
                 return d;
         }
+        return 0;
+    }
+
+    /// <summary>[from, to) 본문 구간이 두 프레임에서 완전히 같은지 (스크롤이 안 됐거나 바닥).</summary>
+    private static bool ContentIdentical(ulong[] prev, ulong[] cur, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+            if (prev[i] != cur[i]) return false;
+        return true;
+    }
+
+    /// <summary>
+    /// 엄격 매칭(FindScrollOffset)이 실패했을 때의 보정 추정.
+    /// 겹침이 가장 잘 맞는(불일치 최소) 오프셋을 찾아, 겹침의 90% 이상 일치하면 채택한다.
+    /// 고유 앵커가 부족한 균일/반복 구간에서도 진행이 멈추지 않게 한다.
+    /// </summary>
+    private static int EstimateScrollOffset(ulong[] prev, ulong[] cur, int from, int to)
+    {
+        int win = to - from;
+        if (win < 60) return 0;
+
+        int bestD = 0, bestMiss = int.MaxValue;
+        int maxOffset = win - Math.Min(40, win / 4);
+        for (int d = MinScrollPx; d <= maxOffset; d++)
+        {
+            int len = win - d, miss = 0;
+            for (int i = 0; i < len; i++)
+            {
+                if (prev[from + d + i] != cur[from + i] && ++miss >= bestMiss) break;
+            }
+            if (miss < bestMiss) { bestMiss = miss; bestD = d; }
+        }
+
+        int overlap = win - bestD;
+        // 겹침이 충분히 길고(≥40행) 90% 이상 일치할 때만 신뢰
+        if (bestD >= MinScrollPx && overlap >= 40 && bestMiss <= overlap / 10)
+            return bestD;
         return 0;
     }
 
