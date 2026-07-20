@@ -35,12 +35,14 @@ jobs:
         run: |
           $ver = "${{ github.ref_name }}".TrimStart("v")
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=$ver installer\CaptureIt.iss
+          # 아티팩트 경로가 평평해지도록 루트로 이동
+          Move-Item dist\CaptureIt-Setup-win-x64.exe .
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
-            dist/CaptureIt-Setup-win-x64.exe
+            CaptureIt-Setup-win-x64.exe
             CaptureIt-Portable-win-x64.zip
 
   # ── Linux: 크로스 에디션 tar.gz ──────────────────────────────────────────
