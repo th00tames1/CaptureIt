@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>CaptureIt</string>
+    <key>CFBundleDisplayName</key>
+    <string>CaptureIt</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.heechanjeong.captureit</string>
+    <key>CFBundleVersion</key>
+    <string>APP_VERSION</string>
+    <key>CFBundleShortVersionString</key>
+    <string>APP_VERSION</string>
+    <key>CFBundleExecutable</key>
+    <string>CaptureIt</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>11.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>CaptureIt uses AppleScript to copy captured images to the clipboard.</string>
+</dict>
+</plist>

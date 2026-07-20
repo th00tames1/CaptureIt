@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>CaptureIt</AssemblyName>
+    <Product>CaptureIt (Cross-platform edition)</Product>
+    <Version>2.1.0</Version>
+    <Copyright>© 2026 Heechan Jeong</Copyright>
+    <Authors>Heechan Jeong</Authors>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <ApplicationIcon>../CaptureIt/app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.*" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.*" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.*" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.*" />
+    <!-- Windows에서만 화면 캡처에 사용 (다른 OS는 네이티브 도구 호출) -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.*" />
+  </ItemGroup>
+
+</Project>

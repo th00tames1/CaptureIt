@@ -1,0 +1,142 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Windows: WPF 풀 에디션 → 설치 프로그램 + 포터블 zip ──────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish (self-contained single file)
+        run: >
+          dotnet publish CaptureIt/CaptureIt.csproj -c Release -r win-x64
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win
+
+      - name: Portable zip
+        run: Compress-Archive -Path publish/win/CaptureIt.exe -DestinationPath CaptureIt-Portable-win-x64.zip
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=$ver installer\CaptureIt.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/CaptureIt-Setup-win-x64.exe
+            CaptureIt-Portable-win-x64.zip
+
+  # ── Linux: 크로스 에디션 tar.gz ──────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish
+        run: >
+          dotnet publish CaptureIt.Cross/CaptureIt.Cross.csproj -c Release -r linux-x64
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true -o publish/linux
+
+      - name: Package tar.gz
+        run: |
+          mkdir -p stage/CaptureIt
+          cp publish/linux/CaptureIt stage/CaptureIt/
+          cp packaging/linux/captureit.desktop packaging/linux/install.sh stage/CaptureIt/
+          chmod +x stage/CaptureIt/CaptureIt stage/CaptureIt/install.sh
+          tar -czf CaptureIt-linux-x64.tar.gz -C stage CaptureIt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: CaptureIt-linux-x64.tar.gz
+
+  # ── macOS: 크로스 에디션 .app 번들 (Intel + Apple Silicon) ───────────────
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - rid: osx-x64
+            suffix: intel
+          - rid: osx-arm64
+            suffix: apple-silicon
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish
+        run: >
+          dotnet publish CaptureIt.Cross/CaptureIt.Cross.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained true -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true -o publish/mac
+
+      - name: Make .app bundle
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          mkdir -p "CaptureIt.app/Contents/MacOS"
+          cp publish/mac/CaptureIt "CaptureIt.app/Contents/MacOS/CaptureIt"
+          chmod +x "CaptureIt.app/Contents/MacOS/CaptureIt"
+          sed "s/APP_VERSION/$ver/g" packaging/macos/Info.plist > "CaptureIt.app/Contents/Info.plist"
+          ditto -c -k --keepParent CaptureIt.app "CaptureIt-macos-${{ matrix.suffix }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.suffix }}
+          path: CaptureIt-macos-${{ matrix.suffix }}.zip
+
+  # ── 릴리스 생성 ──────────────────────────────────────────────────────────
+  release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            CaptureIt-Setup-win-x64.exe
+            CaptureIt-Portable-win-x64.zip
+            CaptureIt-linux-x64.tar.gz
+            CaptureIt-macos-intel.zip
+            CaptureIt-macos-apple-silicon.zip
+          generate_release_notes: true
+          body: |
+            ## Downloads · 다운로드
+
+            | OS | File | Notes |
+            |---|---|---|
+            | **Windows 10/11** | `CaptureIt-Setup-win-x64.exe` | Installer — recommended · 설치 프로그램 (권장) |
+            | Windows 10/11 | `CaptureIt-Portable-win-x64.zip` | Portable, no install · 무설치 포터블 |
+            | **Linux x64** | `CaptureIt-linux-x64.tar.gz` | Extract, then run `./install.sh` (cross-platform edition) |
+            | **macOS (Apple Silicon)** | `CaptureIt-macos-apple-silicon.zip` | Unzip → right-click → Open (cross-platform edition) |
+            | macOS (Intel) | `CaptureIt-macos-intel.zip` | Unzip → right-click → Open (cross-platform edition) |
+
+            **macOS**: unsigned app — first launch requires **right-click → Open**, and grant *Screen Recording* permission when prompted.
+            **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` / ImageMagick; clipboard needs `wl-clipboard` or `xclip`.

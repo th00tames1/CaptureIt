@@ -1,0 +1,107 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:CaptureIt.Cross"
+        x:Class="CaptureIt.Cross.MainWindow"
+        Title="CaptureIt" Width="1120" Height="700"
+        MinWidth="860" MinHeight="540"
+        Background="#F7F9FC"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid RowDefinitions="Auto,*,28">
+
+        <!-- ══ 툴바 ══ -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E5E9F0" BorderThickness="0,0,0,1" Padding="10,8">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                    <Button x:Name="BtnRegion" Click="Region_Click" Background="#2D7DF6" Foreground="White"
+                            Padding="14,7" CornerRadius="8" FontWeight="SemiBold"/>
+                    <Button x:Name="BtnFull" Click="Full_Click" Background="#2D7DF6" Foreground="White"
+                            Padding="14,7" CornerRadius="8" FontWeight="SemiBold"/>
+
+                    <Border Width="1" Height="30" Background="#E5E9F0" Margin="6,0"/>
+
+                    <ToggleButton x:Name="ToolSelect" Click="Tool_Click" Padding="10,6" CornerRadius="8" IsChecked="True"/>
+                    <ToggleButton x:Name="ToolPen" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
+                    <ToggleButton x:Name="ToolBox" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
+                    <ToggleButton x:Name="ToolArrow" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
+                    <ToggleButton x:Name="ToolCrop" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
+
+                    <Border Width="1" Height="30" Background="#E5E9F0" Margin="6,0"/>
+
+    <!-- 색상: 선택된 색은 파란 링으로 표시 -->
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Button x:Name="ColR" Click="Color_Click" Tag="#EF4444" Width="24" Height="24" CornerRadius="12" Background="#EF4444" BorderBrush="#1F5FCC" BorderThickness="3" Padding="0"/>
+                        <Button x:Name="ColY" Click="Color_Click" Tag="#FACC15" Width="24" Height="24" CornerRadius="12" Background="#FACC15" BorderThickness="0" Padding="0"/>
+                        <Button x:Name="ColG" Click="Color_Click" Tag="#22C55E" Width="24" Height="24" CornerRadius="12" Background="#22C55E" BorderThickness="0" Padding="0"/>
+                        <Button x:Name="ColB" Click="Color_Click" Tag="#2D7DF6" Width="24" Height="24" CornerRadius="12" Background="#2D7DF6" BorderBrush="#1F5FCC" BorderThickness="0" Padding="0"/>
+                        <Button x:Name="ColK" Click="Color_Click" Tag="#111827" Width="24" Height="24" CornerRadius="12" Background="#111827" BorderThickness="0" Padding="0"/>
+                    </StackPanel>
+
+                    <ComboBox x:Name="CmbThickness" SelectedIndex="1" Width="70" VerticalAlignment="Center" Margin="6,0,0,0">
+                        <ComboBoxItem Content="2 px"/>
+                        <ComboBoxItem Content="4 px"/>
+                        <ComboBoxItem Content="8 px"/>
+                    </ComboBox>
+
+                    <Button x:Name="BtnUndo" Click="Undo_Click" Padding="10,6" CornerRadius="8"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                    <Button x:Name="BtnCopy" Click="Copy_Click" Padding="12,7" CornerRadius="8"/>
+                    <Button x:Name="BtnSave" Click="Save_Click" Background="#22C55E" Foreground="White"
+                            Padding="12,7" CornerRadius="8" FontWeight="SemiBold"/>
+                    <Button x:Name="BtnDelete" Click="Delete_Click" Padding="12,7" CornerRadius="8"/>
+                    <Button x:Name="BtnFolder" Click="Folder_Click" Padding="12,7" CornerRadius="8"/>
+                    <Button x:Name="BtnLang" Click="Lang_Click" Padding="12,7" CornerRadius="8"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ 본문: 캔버스 + 히스토리 ══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,240">
+
+            <ScrollViewer x:Name="Scroller" Grid.Column="0"
+                          HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                          Background="#EDF0F5">
+                <LayoutTransformControl x:Name="ZoomHost" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                    <Border BoxShadow="0 2 14 0 #33202A3A">
+                        <local:AnnotCanvas x:Name="Canvas"
+                                           PointerPressed="Canvas_Pressed"
+                                           PointerMoved="Canvas_Moved"
+                                           PointerReleased="Canvas_Released"/>
+                    </Border>
+                </LayoutTransformControl>
+            </ScrollViewer>
+
+            <Border Grid.Column="1" Background="White" BorderBrush="#E5E9F0" BorderThickness="1,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock x:Name="LblHistory" Grid.Row="0" FontWeight="Bold" FontSize="14"
+                               Foreground="#1F2937" Margin="14,12,14,8"/>
+                    <ListBox x:Name="HistoryList" Grid.Row="1" Background="Transparent"
+                             SelectionChanged="History_SelectionChanged" Padding="8,0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Spacing="4" Margin="2">
+                                    <Border CornerRadius="6" ClipToBounds="True" BorderBrush="#E5E9F0" BorderThickness="1">
+                                        <Image Source="{Binding Thumb}" Stretch="Uniform" MaxHeight="130"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding Caption}" FontSize="11" Foreground="#6B7280"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ══ 상태 바 ══ -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E5E9F0" BorderThickness="0,1,0,0" Padding="12,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock x:Name="TxtStatus" Grid.Column="0" FontSize="11" Foreground="#2D7DF6"
+                           VerticalAlignment="Center" FontWeight="SemiBold"/>
+                <TextBlock x:Name="TxtAbout" Grid.Column="1" FontSize="11" Foreground="#9AA6B8"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

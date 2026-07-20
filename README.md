@@ -1,97 +1,108 @@
-﻿# CaptureIt v2.0
+# CaptureIt
 
-알캡처를 벤치마크한, 누구나 쉽게 쓸 수 있는 Windows 화면 캡처 프로그램입니다.
-.NET 8 + WPF 네이티브 앱 · 한국어/영어 UI · Made by **Heechan Jeong**
+[한국어](README.ko.md)
 
-## 바로 실행하기
+Easy screen capture for everyone — a full-featured Windows app (WPF) plus a
+cross-platform edition for Linux and macOS (Avalonia).
+Made by **Heechan Jeong** · MIT License
 
-**`배포\CaptureIt.exe`** 를 더블클릭하면 바로 실행됩니다.
-(.NET 설치가 필요 없는 단일 실행 파일입니다.)
+![Windows editor](docs/screenshot-editor.png)
 
-## 주요 기능
+## Download & Install
 
-### 캡처
+**[⬇ Download the latest release](https://github.com/th00tames1/CaptureIt/releases/latest)**
 
-| 기능 | 설명 | 기본 단축키 |
-|------|------|------------|
-| 영역 캡처 | 화면이 잠시 멈추고, 원하는 부분을 드래그로 선택 | `Ctrl+Shift+A` |
-| 단위 영역 | 버튼·이미지 같은 화면 요소를 하이라이트해 클릭 한 번으로 | `Ctrl+Shift+E` |
-| 창 캡처 | 마우스를 올린 창이 강조되고, 클릭 한 번으로 캡처 | `Ctrl+Shift+W` |
-| 전체 캡처 | 모든 모니터 화면 전체를 한 번에 캡처 | `Ctrl+Shift+F` |
-| 스크롤 캡처 | 영역을 드래그하면 자동 스크롤하며 긴 페이지를 이어붙임 | `Ctrl+Shift+S` |
-| 고정 크기 | 화면에 놓인 틀을 모서리로 늘리고 줄이거나 숫자로 크기 입력 → Enter/더블클릭 캡처. 마지막 크기 기억 | `Ctrl+Shift+D` |
-| 같은 영역 다시 캡처 | 직전 영역을 오버레이 없이 즉시 재캡처 | `Ctrl+Shift+R` |
-| 지연 캡처 | 3초/5초/10초 뒤 자동 캡처 (메뉴·팝업 캡처용) | — |
+| OS | File | How to install |
+|---|---|---|
+| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | Run it — that's all (no admin rights needed) |
+| Windows (portable) | [`CaptureIt-Portable-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Portable-win-x64.zip) | Unzip and run the exe |
+| **Linux x64** | [`CaptureIt-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-linux-x64.tar.gz) | Extract, then `./install.sh` |
+| **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
+| macOS (Intel) | [`CaptureIt-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-intel.zip) | Unzip → **right-click → Open** |
 
-> 선호 단축키가 다른 프로그램에 이미 사용 중이면 `Ctrl+Alt+…` → `Alt+Shift+…`
-> 순으로 자동 대체 등록되고, 실제 등록된 키가 버튼과 설정에 표시됩니다.
+> **macOS**: the app is unsigned, so the first launch must be right-click → Open.
+> Grant *Screen Recording* permission when prompted.
+> **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` /
+> ImageMagick (most distros ship one by default). Clipboard needs `wl-clipboard` (Wayland) or `xclip` (X11).
 
-### 최근 캡처 목록 (알캡처 벤치마크)
+## Windows edition — features
 
-- **모든 캡처가 자동으로 목록에 쌓입니다** (최대 100장, 앱을 껐다 켜도 유지)
-- 편집기 오른쪽 사이드바에서 썸네일로 보고, **클릭하면 언제든 다시 편집**
-- 편집 중 다른 항목으로 이동해도 **그리던 내용이 자동 보존**(해당 항목에 합성)
-- **목록에서 바로 `Ctrl+C`** → 어디든 `Ctrl+V` (채팅·문서에는 이미지로, 탐색기·메신저에는 파일로).
-  편집 중이던 주석도 자동으로 합성되어 화면에 보이는 그대로 복사됩니다
-- **편집도 끝까지 되돌리기** — 합성·자르기·저장으로 이미지에 구워진 편집도
-  `Ctrl+Z`로 단계별 되돌리기, `Ctrl+Y`로 다시 적용 (항목별 최근 8단계)
-- 항목별 우클릭: 복사 / 저장 폴더에 저장 / 삭제 · 하단: 모두 저장 / 모두 삭제
-- 메인 창 "캡처 목록" 버튼(N/100 표시)으로 바로 열기
+![Windows main toolbar](docs/screenshot-main.png)
 
-### 편집기 (결과창)
+### Capture
 
-- **그리기**: 펜, 형광펜(반투명), 직선, 화살표, 사각형, 원
-- **텍스트** (Enter 확정, Shift+Enter 줄바꿈) · **번호 스탬프** ①②③ 자동 증가
-- **모자이크**: 개인정보 픽셀 처리 · **지우개**: 그린 것을 클릭해 선택 삭제
-- **자르기** · **초기화**(전체 지우기) · 실행 취소/다시 실행 (`Ctrl+Z`/`Ctrl+Y`)
-- 8가지 색상 + 4단계 굵기 · `Ctrl+휠` 확대/축소 · 자동 맞춤 표시
-- 저장(`Ctrl+S`) · 클립보드 복사(`Ctrl+C`) · 다른 이름으로 저장 (PNG/JPG/BMP)
-- "새 캡처" 버튼으로 편집기에서 바로 재캡처
+| Mode | What it does | Default hotkey |
+|------|--------------|----------------|
+| Region | Screen freezes; drag to select any area | `Ctrl+Shift+A` |
+| UI element | Hover highlights buttons/images/panels; one click captures | `Ctrl+Shift+E` |
+| Window | Hover highlights a window; one click captures it | `Ctrl+Shift+W` |
+| Full screen | Every monitor at once | `Ctrl+Shift+F` |
+| Scrolling | Drag over scrolling content; auto-scrolls and stitches a long page | `Ctrl+Shift+S` |
+| Fixed size | A resizable frame parked on screen — drag its corners or type exact W×H, then Enter / double-click | `Ctrl+Shift+D` |
+| Repeat last region | Instantly re-captures the previous region | `Ctrl+Shift+R` |
+| Delayed | 3/5/10 s timer for menus and popups | — |
 
-### 상용 소프트웨어 편의 기능
+> If a preferred hotkey is taken by another app, CaptureIt automatically falls back to
+> `Ctrl+Alt+…`, then `Alt+Shift+…`, and shows the actually-registered keys in the UI.
 
-- **한국어/영어 전환** — 설정에서 즉시 적용
-- **Windows 시작 시 자동 실행** — 부팅하면 트레이에서 조용히 대기 (설정에서 켜고 끄기)
-- **창 겹침 방지** — 메인 툴바와 편집기가 서로 가리지 않게 자동 배치
-- 메인 툴바 **항상 위 고정(핀)** · 창 위치 기억
-- 캡처하면 자동 클립보드 복사(이미지+PNG+파일 동시) → 어디든 바로 `Ctrl+V`
-- 창을 닫아도 트레이에서 계속 실행, 트레이 메뉴로 즉시 캡처
-- 정보(About) 창 · 전용 앱 아이콘
+### Recent captures
 
-## 폴더 구성
+- Every capture lands in the history list (up to 100, persisted across restarts)
+- Thumbnails in the editor sidebar — click any item to edit it again at any time
+- In-progress annotations are auto-baked into the item when you switch away
+- `Ctrl+C` directly on a list item → paste anywhere (image for chats/documents, file for Explorer/messengers)
+- Even baked edits (flatten/crop/save) can be stepped back with `Ctrl+Z` / reapplied with `Ctrl+Y` (8 steps per item)
 
-```
-Alcapture_Copy/
-├─ 배포/CaptureIt.exe    ← 배포용 단일 실행 파일 (이 파일만 있으면 됨)
-├─ CaptureIt/            ← 소스 코드 (.NET 8 WPF)
-│  ├─ MainWindow.*         메인 캡처 툴바
-│  ├─ EditorWindow.*       편집기 + 최근 캡처 목록 사이드바
-│  ├─ RegionSelectWindow.* 영역/창 선택 오버레이
-│  ├─ SettingsWindow.*     설정 (언어·자동 실행 포함)
-│  ├─ AboutWindow.*        정보
-│  ├─ Resources/           한국어/영어 문자열 (Strings.ko/en.xaml)
-│  ├─ Services/            캡처·단축키·히스토리·다국어·시작프로그램·창배치
-│  └─ Models/              설정 저장 (%APPDATA%\CaptureIt)
-└─ README.md
-```
+### Editor
 
-- 캡처 목록 저장 위치: `%APPDATA%\CaptureIt\History`
-- 기본 저장 폴더: `사진\CaptureIt` (파일명: `캡처_날짜_시각.png`)
+- Pen, marker, line, arrow, box, circle, text, auto-numbering stamps ①②③
+- Pixelate (privacy mosaic), eraser, crop, clear-all
+- 8 colors, 4 stroke sizes, `Ctrl+wheel` zoom
+- Save (`Ctrl+S`), copy (`Ctrl+C`), save-as PNG/JPG/BMP
 
-## 소스에서 빌드하기
+### Convenience
 
-```powershell
-# 개발 빌드 & 실행
+- English/Korean UI switch · run at Windows startup · lives in the tray
+- Auto-copies each capture to the clipboard (bitmap + PNG + file at once)
+- Window-overlap-free placement, pin-on-top toolbar, remembered positions
+
+## Cross-platform edition (Linux · macOS)
+
+![Cross-platform edition](docs/screenshot-cross.png)
+
+A lean Avalonia edition. Screen grabbing is delegated to the OS-native screenshot
+tool (`screencapture` on macOS, `gnome-screenshot`/`grim`/… on Linux) — the OS
+handles Wayland, multi-monitor and permissions best.
+
+| Feature | Support |
+|---|---|
+| Region / full-screen capture | ✅ (native OS region UI on macOS/Linux) |
+| Annotations: pen, box, arrow | ✅ |
+| Crop · undo | ✅ |
+| Capture history (100 items) | ✅ |
+| Copy to clipboard · save PNG | ✅ |
+| English / Korean | ✅ |
+| Window/element/scrolling/fixed capture, global hotkeys, tray | Windows edition only |
+
+## Build from source
+
+```bash
+# Windows full edition (Windows only)
 dotnet run --project CaptureIt
 
-# 배포용 단일 실행 파일 만들기
-dotnet publish CaptureIt -c Release -r win-x64 --self-contained true `
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o 배포
+# Cross-platform edition (anywhere)
+dotnet run --project CaptureIt.Cross
 ```
 
-## 알려진 제한
+Release binaries are produced automatically by
+[.github/workflows/release.yml](.github/workflows/release.yml) on every version tag.
 
-- 모니터별 배율(DPI)이 서로 다른 멀티 모니터 환경에서는 영역 선택 좌표가
-  약간 어긋날 수 있습니다 (동일 배율에서는 정확).
-- 스크롤 캡처는 선택 영역 안에 고정 헤더(스크롤해도 안 움직이는 부분)가 있으면
-  일찍 멈출 수 있습니다 — 실제로 스크롤되는 본문만 드래그하세요.
+## Known limitations
+
+- Windows: on multi-monitor setups with *different* DPI scales, region coordinates can be slightly off.
+- Windows scrolling capture stops early if the selected area contains a sticky header — drag over the content that actually scrolls.
+- The macOS/Linux edition is built in CI; day-to-day testing happens on Windows. Please [report issues](https://github.com/th00tames1/CaptureIt/issues).
+
+## License
+
+MIT © 2026 [Heechan Jeong](https://github.com/th00tames1)

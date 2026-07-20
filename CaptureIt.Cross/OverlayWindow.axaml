@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CaptureIt.Cross.OverlayWindow"
+        SystemDecorations="None" WindowState="FullScreen" Topmost="True"
+        Background="Black" Cursor="Cross">
+    <Panel x:Name="Root">
+        <Image x:Name="Frozen" Stretch="Fill"/>
+        <Canvas x:Name="Deco">
+            <Rectangle x:Name="SelRect" Stroke="#2D7DF6" StrokeThickness="2"
+                       Fill="#302D7DF6" IsVisible="False"/>
+            <Border x:Name="HintBar" Background="#D9101828" CornerRadius="8" Padding="14,7">
+                <TextBlock x:Name="HintText" Foreground="White" FontSize="13"/>
+            </Border>
+        </Canvas>
+    </Panel>
+</Window>
