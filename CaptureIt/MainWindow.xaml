@@ -84,7 +84,7 @@
                             <Path Data="M15,10 L15,20 M10,15 L20,15" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Region}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblRegionKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblRegionKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -101,7 +101,7 @@
                                   Fill="{StaticResource PrimaryBrush}" Stroke="White" StrokeThickness="0.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Element}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblElementKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblElementKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -117,7 +117,7 @@
                             <Ellipse Canvas.Left="10" Canvas.Top="7.2" Width="2.5" Height="2.5" Fill="{StaticResource PrimaryBrush}"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Window}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblWindowKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblWindowKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -132,7 +132,7 @@
                             <Line X1="9" Y1="26.5" X2="21" Y2="26.5" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Full}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblFullKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblFullKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -149,7 +149,7 @@
                                   Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Scroll}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblScrollKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblScrollKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -164,7 +164,7 @@
                                        Stroke="#9AA6B8" StrokeThickness="1.6" StrokeDashArray="2.4 1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Fixed}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblFixedKey" Text="—" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblFixedKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
                     </StackPanel>
                 </Button>
 
@@ -190,7 +190,7 @@
                 <Rectangle Width="1" Height="56" Fill="{StaticResource BorderSoft}" Margin="6,0"/>
 
                 <!-- 지연 캡처 -->
-                <StackPanel VerticalAlignment="Center" Margin="2,0,0,0">
+                <StackPanel VerticalAlignment="Center" Margin="2,0,0,0" ToolTip="{DynamicResource Main.Tip.Delay}">
                     <TextBlock Text="{DynamicResource Main.Delay}" FontSize="11" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
                     <ComboBox x:Name="CmbDelay" Width="78" Margin="0,5,0,0" FontSize="12"
                               SelectionChanged="Delay_Changed">

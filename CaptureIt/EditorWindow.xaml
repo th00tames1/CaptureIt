@@ -180,16 +180,11 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- 굵기 -->
+                    <!-- 굵기: 실제 선 두께 미리보기로 선택 -->
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
                         <TextBlock Text="{DynamicResource Editor.Thickness}" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
-                        <ComboBox x:Name="CmbThickness" Width="76" FontSize="11" Margin="0,3,0,0"
-                                  SelectedIndex="1" SelectionChanged="Thickness_Changed">
-                            <ComboBoxItem Content="{DynamicResource Editor.Thin}"/>
-                            <ComboBoxItem Content="{DynamicResource Editor.Normal}"/>
-                            <ComboBoxItem Content="{DynamicResource Editor.Thick}"/>
-                            <ComboBoxItem Content="{DynamicResource Editor.VeryThick}"/>
-                        </ComboBox>
+                        <ComboBox x:Name="CmbThickness" Width="88" FontSize="11" Margin="0,3,0,0"
+                                  SelectionChanged="Thickness_Changed"/>
                     </StackPanel>
 
                     <!-- 채우기 색 — 사각형/원 도구에서만 표시 -->

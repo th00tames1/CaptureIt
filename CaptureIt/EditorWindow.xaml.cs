@@ -67,6 +67,7 @@ public partial class EditorWindow : Window
         UpdateSidebarState();
         UpdateEmptyState();
         InitFontControls();
+        InitThicknessCombo();
         KeyDown += OnKeyDown;
         Closing += OnClosing;
         Loc.LanguageChanged += () => { RefreshTitle(); UpdateSidebarState(); };
@@ -202,7 +203,7 @@ public partial class EditorWindow : Window
     private void RefreshTitle()
     {
         Title = _image != null
-            ? $"{Loc.Get("Editor.Title")} — {_image.PixelWidth}×{_image.PixelHeight}"
+            ? $"{Loc.Get("Editor.Title")} · {_image.PixelWidth}×{_image.PixelHeight}"
             : Loc.Get("Editor.Title");
     }
 
@@ -298,9 +299,40 @@ public partial class EditorWindow : Window
             _fillColor = tag == "transparent" ? null : (Color)ColorConverter.ConvertFromString(tag);
     }
 
+    private static readonly double[] ThicknessChoices = { 1, 2, 3, 4, 6, 8, 12, 16, 24 };
+
+    /// <summary>굵기 콤보: 이름 대신 실제 두께의 선 미리보기 + 픽셀 값으로 채운다.</summary>
+    private void InitThicknessCombo()
+    {
+        foreach (var t in ThicknessChoices)
+        {
+            double visual = Math.Min(t, 16);   // 아주 굵은 값도 항목 높이는 적당히
+            var panel = new StackPanel { Orientation = Orientation.Horizontal };
+            panel.Children.Add(new Rectangle
+            {
+                Width = 42,
+                Height = visual,
+                RadiusX = visual / 2,
+                RadiusY = visual / 2,
+                Fill = new SolidColorBrush(Color.FromRgb(31, 41, 55)),
+                VerticalAlignment = VerticalAlignment.Center
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = t.ToString(),
+                Margin = new Thickness(7, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128))
+            });
+            CmbThickness.Items.Add(new ComboBoxItem { Content = panel, Tag = t });
+        }
+        CmbThickness.SelectedIndex = Array.IndexOf(ThicknessChoices, 4.0);
+    }
+
     private void Thickness_Changed(object sender, SelectionChangedEventArgs e)
     {
-        _thickness = CmbThickness.SelectedIndex switch { 0 => 2, 1 => 4, 2 => 7, 3 => 12, _ => 4 };
+        if (CmbThickness.SelectedItem is ComboBoxItem { Tag: double t })
+            _thickness = t;
     }
 
     // ── 글꼴 옵션 (텍스트 도구) ────────────────────────────────────────────

@@ -74,13 +74,13 @@ public partial class MainWindow : Window
 
     // ── 전역 단축키 ────────────────────────────────────────────────────────
     /// <summary>실제 등록에 성공한 단축키 라벨 (설정 창 표시용).</summary>
-    public static string RegionKeyLabel { get; private set; } = "—";
-    public static string WindowKeyLabel { get; private set; } = "—";
-    public static string FullKeyLabel { get; private set; } = "—";
-    public static string RepeatKeyLabel { get; private set; } = "—";
-    public static string ElementKeyLabel { get; private set; } = "—";
-    public static string ScrollKeyLabel { get; private set; } = "—";
-    public static string FixedKeyLabel { get; private set; } = "—";
+    public static string RegionKeyLabel { get; private set; } = "-";
+    public static string WindowKeyLabel { get; private set; } = "-";
+    public static string FullKeyLabel { get; private set; } = "-";
+    public static string RepeatKeyLabel { get; private set; } = "-";
+    public static string ElementKeyLabel { get; private set; } = "-";
+    public static string ScrollKeyLabel { get; private set; } = "-";
+    public static string FixedKeyLabel { get; private set; } = "-";
 
     /// <summary>선호 조합이 다른 앱에 선점됐으면 대체 조합을 차례로 시도한다.</summary>
     private string TryRegister(uint vk, Action action)
@@ -95,7 +95,7 @@ public partial class MainWindow : Window
         foreach (var (mods, prefix) in candidates)
             if (_hotkeys!.Register(mods, vk, action))
                 return prefix + key;
-        return "—";
+        return "-";
     }
 
     private void EnsureHotkeys()
@@ -128,9 +128,9 @@ public partial class MainWindow : Window
         LblFixedKey.Text = FixedKeyLabel;
 
         var dead = new List<string>();
-        if (RegionKeyLabel == "—") dead.Add(Loc.Get("Word.Region"));
-        if (WindowKeyLabel == "—") dead.Add(Loc.Get("Word.Window"));
-        if (FullKeyLabel == "—") dead.Add(Loc.Get("Word.Full"));
+        if (RegionKeyLabel == "-") dead.Add(Loc.Get("Word.Region"));
+        if (WindowKeyLabel == "-") dead.Add(Loc.Get("Word.Window"));
+        if (FullKeyLabel == "-") dead.Add(Loc.Get("Word.Full"));
         if (dead.Count > 0)
             TxtHint.Text = Loc.F("Main.Hint.HotkeyFail", string.Join("/", dead));
     }
@@ -318,22 +318,15 @@ public partial class MainWindow : Window
     }
 
     // ── 캡처 플로우 ────────────────────────────────────────────────────────
-    /// <summary>캡처 전 준비: 카운트다운 표시 + 창 숨김. 화면이 다시 그려질 시간을 준다.</summary>
+    /// <summary>캡처 전 준비: 창 숨김. 화면이 다시 그려질 시간을 준다.
+    /// 지연(딜레이)은 여기가 아니라 대상 지정이 끝난 뒤에 건다. 순서:
+    /// 대상 지정 → 카운트다운(그동안 메뉴를 열거나 화면을 준비) → 그 시점의 라이브 화면 캡처.</summary>
     private async Task<bool> PrepareCaptureAsync()
     {
         if (_capturing) return false;
         _capturing = true;
         try
         {
-            if (S.CaptureDelaySeconds > 0 &&
-                !await FeedbackService.CountdownAsync(S.CaptureDelaySeconds))
-            {
-                _capturing = false;   // Esc로 카운트다운 취소
-                return false;
-            }
-
-            // 가시성 스냅샷은 카운트다운 이후에 찍는다 — 지연 중 사용자가 창을
-            // 열고 닫아도 복원이 어긋나지 않게.
             _wasVisibleBeforeCapture = IsVisible;
             _editorWasVisibleBeforeCapture = _editor is { IsVisible: true };
             _viewfinderWasVisibleBeforeCapture = _viewfinder is { IsVisible: true };
@@ -353,6 +346,42 @@ public partial class MainWindow : Window
             _capturing = false;   // 준비 중 예외로 캡처가 영구 잠기지 않게
             return false;
         }
+    }
+
+    /// <summary>딜레이 설정이 있으면 카운트다운을 표시하고 기다린다. Esc 취소 시 false.</summary>
+    private async Task<bool> DelayBeforeShotAsync()
+    {
+        if (S.CaptureDelaySeconds <= 0) return true;
+        return await FeedbackService.CountdownAsync(S.CaptureDelaySeconds);
+    }
+
+    /// <summary>지정해 둔 물리 영역을 (딜레이가 있으면 카운트다운 후) 라이브 화면에서 캡처한다.
+    /// 취소(Esc) 시 null.</summary>
+    private async Task<BitmapSource?> CaptureLiveAfterDelayAsync(System.Drawing.Rectangle abs)
+    {
+        if (!await DelayBeforeShotAsync()) return null;
+        using var shot = CaptureService.CaptureRect(abs);
+        FeedbackService.Flash();
+        return CaptureService.ToBitmapSource(shot);
+    }
+
+    /// <summary>
+    /// 오버레이에서 고른 영역을 최종 이미지로 만든다.
+    /// 딜레이가 없으면 이미 찍어둔 정지 이미지를 잘라 즉시 반환하고,
+    /// 딜레이가 있으면 카운트다운 뒤 그 영역의 '라이브' 화면을 캡처한다(알캡처와 동일).
+    /// 카운트다운을 Esc로 취소하면 null.
+    /// </summary>
+    private async Task<BitmapSource?> ResolveSelectionAsync(BitmapSource frozen, Int32Rect rect)
+    {
+        if (S.CaptureDelaySeconds > 0)
+        {
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            var abs = new System.Drawing.Rectangle(v.X + rect.X, v.Y + rect.Y, rect.Width, rect.Height);
+            return await CaptureLiveAfterDelayAsync(abs);
+        }
+        var cropped = new CroppedBitmap(frozen, rect);
+        cropped.Freeze();
+        return cropped;
     }
 
     /// <summary>캡처 종료 정리. canceled=true(Esc 등)면 메인 창을 앞으로 가져온다.</summary>
@@ -384,9 +413,9 @@ public partial class MainWindow : Window
                 S.LastCaptureMode = "Region";
                 var v = System.Windows.Forms.SystemInformation.VirtualScreen;
                 _lastRegionRect = new System.Drawing.Rectangle(v.X + rect.X, v.Y + rect.Y, rect.Width, rect.Height);
-                var cropped = new CroppedBitmap(frozen, rect);
-                cropped.Freeze();
-                await HandleCaptured(cropped);
+                var img = await ResolveSelectionAsync(frozen, rect);
+                if (img != null) await HandleCaptured(img);
+                else canceled = true;   // 카운트다운 취소
             }
             else canceled = true;
         }
@@ -430,14 +459,14 @@ public partial class MainWindow : Window
         }
 
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
-            using var shot = CaptureService.CaptureRect(rect);
-            var img = CaptureService.ToBitmapSource(shot);
-            FeedbackService.Flash();
-            await HandleCaptured(img);
+            var img = await CaptureLiveAfterDelayAsync(rect);   // 딜레이 있으면 카운트다운 후
+            if (img != null) await HandleCaptured(img);
+            else canceled = true;
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
     }
 
     /// <summary>단위 영역: UI 요소를 하이라이트하고 클릭 한 번으로 캡처.</summary>
@@ -455,16 +484,16 @@ public partial class MainWindow : Window
             if (ok == true && overlay.SelectedPixelRect is { } rect)
             {
                 S.LastCaptureMode = "Element";
-                var cropped = new CroppedBitmap(frozen, rect);
-                cropped.Freeze();
-                await HandleCaptured(cropped);
+                var img = await ResolveSelectionAsync(frozen, rect);
+                if (img != null) await HandleCaptured(img);
+                else canceled = true;
             }
             else canceled = true;
         }
         finally { FinishCapture(canceled); }
     }
 
-    /// <summary>고정 크기: 라이브 뷰파인더 틀을 토글한다 (화면 정지 없음 — 즉시 표시).</summary>
+    /// <summary>고정 크기: 라이브 뷰파인더 틀을 토글한다 (화면 정지 없음, 즉시 표시).</summary>
     public void ToggleViewfinder()
     {
         if (_viewfinder is { IsVisible: true })
@@ -646,9 +675,9 @@ public partial class MainWindow : Window
             if (ok == true && overlay.SelectedPixelRect is { } rect)
             {
                 S.LastCaptureMode = "Window";
-                var cropped = new CroppedBitmap(frozen, rect);
-                cropped.Freeze();
-                await HandleCaptured(cropped);
+                var img = await ResolveSelectionAsync(frozen, rect);
+                if (img != null) await HandleCaptured(img);
+                else canceled = true;
             }
             else canceled = true;
         }
@@ -658,15 +687,17 @@ public partial class MainWindow : Window
     public async Task StartFullCapture()
     {
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
-            using var shot = CaptureService.CaptureVirtualScreen();
-            var frozen = CaptureService.ToBitmapSource(shot);
             S.LastCaptureMode = "Full";
-            FeedbackService.Flash();   // 오버레이가 없는 모드는 플래시로 캡처 순간을 알린다
-            await HandleCaptured(frozen);
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            // 딜레이가 있으면 카운트다운 뒤 라이브 화면을, 없으면 즉시 캡처
+            var img = await CaptureLiveAfterDelayAsync(new System.Drawing.Rectangle(v.X, v.Y, v.Width, v.Height));
+            if (img != null) await HandleCaptured(img);
+            else canceled = true;
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
     }
 
     // ── 캡처 결과 처리 ─────────────────────────────────────────────────────
