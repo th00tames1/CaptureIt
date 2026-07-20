@@ -28,8 +28,13 @@ public class AppSettings
     public string FileNamePrefix { get; set; } = "Capture";
 
     public string Language { get; set; } = "en";        // en | ko (기본: English)
-    public int FixedWidth { get; set; } = 1280;         // 고정 크기 캡처 (마지막 사용)
-    public int FixedHeight { get; set; } = 720;
+    public int FixedWidth { get; set; } = 800;          // 뷰파인더(고정 크기) 안쪽 영역 물리 px
+    public int FixedHeight { get; set; } = 600;
+    public double? FixedLeft { get; set; }              // 뷰파인더 창 위치 (DIU, null = 화면 중앙)
+    public double? FixedTop { get; set; }
+    public string LastCaptureMode { get; set; } = "Region";   // 편집기 '새 캡처'가 반복할 모드
+    public string TextFontFamily { get; set; } = "Malgun Gothic";   // 텍스트 도구 글꼴
+    public double TextFontSize { get; set; } = 16;
     public bool RunAtStartup { get; set; } = true;      // Windows 시작 시 자동 실행
     public bool MainTopmost { get; set; } = false;      // 메인 툴바 항상 위
     // 메인 창 위치 기억 (null = 아직 없음). NaN은 JSON 직렬화가 불가능하므로 nullable 사용.
@@ -73,15 +78,22 @@ public class AppSettings
         catch { /* 저장 실패는 치명적이지 않음 */ }
     }
 
-    /// <summary>저장 폴더를 보장하고 새 파일 경로를 만든다. 예: 캡처_2026-07-19_142030.png</summary>
+    private static readonly object FileNameLock = new();
+
+    /// <summary>저장 폴더를 보장하고 새 파일 경로를 만든다. 예: Capture_2026-07-19_142030.png
+    /// 자리 표시 파일을 먼저 만들어 두어 여러 스레드가 동시에 채번해도 충돌하지 않는다.</summary>
     public string NewFilePath()
     {
-        Directory.CreateDirectory(SaveFolder);
-        var name = $"{FileNamePrefix}_{DateTime.Now:yyyy-MM-dd_HHmmss}";
-        var path = Path.Combine(SaveFolder, $"{name}.{ImageFormat}");
-        int n = 1;
-        while (File.Exists(path))
-            path = Path.Combine(SaveFolder, $"{name}_{n++}.{ImageFormat}");
-        return path;
+        lock (FileNameLock)
+        {
+            Directory.CreateDirectory(SaveFolder);
+            var name = $"{FileNamePrefix}_{DateTime.Now:yyyy-MM-dd_HHmmss}";
+            var path = Path.Combine(SaveFolder, $"{name}.{ImageFormat}");
+            int n = 1;
+            while (File.Exists(path))
+                path = Path.Combine(SaveFolder, $"{name}_{n++}.{ImageFormat}");
+            try { File.Create(path).Dispose(); } catch { }
+            return path;
+        }
     }
 }

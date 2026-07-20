@@ -26,9 +26,22 @@ public partial class EditorWindow : Window
     private BitmapSource? _image;
     private Tool _tool = Tool.Select;
     private Color _color = (Color)ColorConverter.ConvertFromString("#EF4444");
+    private Color? _fillColor;              // null = 채우기 없음(투명)
     private double _thickness = 4;
     private bool _dirty;
     private int _numberCounter = 1;
+
+    // 텍스트 도구 글꼴 (설정에 유지)
+    private static readonly string[] FontChoices =
+    {
+        "Malgun Gothic", "Gulim", "Dotum", "Batang", "Gungsuh",
+        "Segoe UI", "Arial", "Times New Roman", "Consolas", "Courier New",
+    };
+    private static readonly double[] FontSizeChoices = { 10, 12, 14, 16, 20, 24, 32, 40, 48, 64 };
+
+    // 툴바 아이콘과 같은 geometry로 만드는 도구 커서
+    private const string PenGlyph = "M2,16 L3,12 L12,3 C13,2 15,2 16,3 C17,4 17,6 16,7 L7,16 L2,17 Z M11,4 L15,8";
+    private const string MarkerGlyph = "M3,14 L11,6 L14,9 L6,17 Z M11,6 L13,2 L18,7 L14,9 Z";
 
     private readonly Stack<EditAction> _undo = new();
     private readonly Stack<EditAction> _redo = new();
@@ -53,9 +66,28 @@ public partial class EditorWindow : Window
         HistoryService.Items.CollectionChanged += (_, _) => UpdateSidebarState();
         UpdateSidebarState();
         UpdateEmptyState();
+        InitFontControls();
         KeyDown += OnKeyDown;
         Closing += OnClosing;
         Loc.LanguageChanged += () => { RefreshTitle(); UpdateSidebarState(); };
+    }
+
+    /// <summary>글꼴/크기 콤보를 채우고 저장된 선택을 복원한다.</summary>
+    private void InitFontControls()
+    {
+        foreach (var name in FontChoices)
+            CmbFont.Items.Add(new ComboBoxItem
+            {
+                Content = name,
+                FontFamily = new FontFamily(name),   // 항목 자체를 해당 글꼴로 미리보기
+                Tag = name
+            });
+        int fontIdx = Array.IndexOf(FontChoices, S.TextFontFamily);
+        CmbFont.SelectedIndex = fontIdx >= 0 ? fontIdx : 0;
+
+        foreach (var size in FontSizeChoices)
+            CmbFontSize.Items.Add(size.ToString());
+        CmbFontSize.Text = S.TextFontSize.ToString();
     }
 
     private void OnClosing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -67,18 +99,29 @@ public partial class EditorWindow : Window
     }
 
     // ── 항목 로드/상태 ────────────────────────────────────────────────────
-    /// <summary>목록 항목을 편집 캔버스에 로드한다. 미저장 편집은 해당 항목에 자동 보존.</summary>
-    public void ShowItem(HistoryItem item)
+    private int _loadSeq;        // 빠른 연속 클릭 시 마지막 선택만 반영
+    private bool _itemLoading;   // 로드 await 동안 캔버스 입력 차단 (그렸다 소실되는 것 방지)
+
+    /// <summary>목록 항목을 편집 캔버스에 로드한다. 미저장 편집은 해당 항목에 자동 보존.
+    /// 큰 이미지 디코딩이 UI를 얼리지 않도록 백그라운드에서 로드한다.</summary>
+    public async void ShowItem(HistoryItem item)
     {
         if (ReferenceEquals(item, _currentItem)) { SyncSelection(); return; }
 
         FlattenPendingEdits();
 
-        var img = item.LoadFull();
+        int seq = ++_loadSeq;
+        _itemLoading = true;
+        BitmapSource? img;
+        try { img = await item.LoadFullAsync(); }
+        finally { if (seq == _loadSeq) _itemLoading = false; }
+
+        if (seq != _loadSeq) return;   // 로드 중 다른 항목이 선택됨
+        if (!HistoryService.Items.Contains(item)) return;   // 로드 중 삭제됨 — 유령 부활 방지
         if (img == null)
         {
             // CollectionChanged 디스패치 중 재진입(Items 수정)을 피하기 위해 삭제를 지연한다
-            Dispatcher.BeginInvoke(() => HistoryService.Delete(item));
+            _ = Dispatcher.BeginInvoke(() => HistoryService.Delete(item));
             return;
         }
 
@@ -88,7 +131,7 @@ public partial class EditorWindow : Window
         ResetCanvasState();
         _numberCounter = 1;             // 새 항목에서 번호 스탬프 다시 1부터
         ApplyImage();
-        Dispatcher.BeginInvoke(FitZoom, DispatcherPriority.Loaded);
+        _ = Dispatcher.BeginInvoke(FitZoom, DispatcherPriority.Loaded);
         SyncSelection();
         UpdateEmptyState();
     }
@@ -111,6 +154,7 @@ public partial class EditorWindow : Window
     {
         // 주의: _numberCounter는 여기서 초기화하지 않는다 — 저장/자르기 후 같은 이미지 위에서
         // 번호가 이어져야 하므로, 항목 전환 시에만 명시적으로 1로 되돌린다.
+        if (DrawCanvas.IsMouseCaptured) DrawCanvas.ReleaseMouseCapture();
         DrawCanvas.Children.Clear();
         _undo.Clear();
         _redo.Clear();
@@ -216,14 +260,26 @@ public partial class EditorWindow : Window
             CommitActiveText();
             _tool = Enum.Parse<Tool>(tag);
             if (DrawCanvas == null) return;   // XAML 초기화 중에는 캔버스가 아직 없음
-            DrawCanvas.Cursor = _tool switch
-            {
-                Tool.Select => Cursors.Arrow,
-                Tool.Text => Cursors.IBeam,
-                Tool.Eraser => Cursors.Hand,
-                _ => Cursors.Cross
-            };
+            UpdateToolCursor();
+
+            // 도구별 컨텍스트 옵션 표시
+            FillGroup.Visibility = _tool is Tool.Rect or Tool.Ellipse ? Visibility.Visible : Visibility.Collapsed;
+            TextGroup.Visibility = _tool == Tool.Text ? Visibility.Visible : Visibility.Collapsed;
         }
+    }
+
+    /// <summary>펜·마커는 도구 모양 커서(현재 색 반영), 나머지는 표준 커서.</summary>
+    private void UpdateToolCursor()
+    {
+        DrawCanvas.Cursor = _tool switch
+        {
+            Tool.Select => Cursors.Arrow,
+            Tool.Text => Cursors.IBeam,
+            Tool.Eraser => Cursors.Hand,
+            Tool.Pen => CursorFactory.FromGeometry(PenGlyph, _color, 24, 2, 22),
+            Tool.Highlight => CursorFactory.FromGeometry(MarkerGlyph, _color, 24, 2, 22),
+            _ => Cursors.Cross
+        };
     }
 
     private void Color_Checked(object sender, RoutedEventArgs e)
@@ -232,16 +288,66 @@ public partial class EditorWindow : Window
         {
             _color = (Color)ColorConverter.ConvertFromString(hex);
             if (_activeTextBox != null) _activeTextBox.Foreground = new SolidColorBrush(_color);
+            if (DrawCanvas != null && _tool is Tool.Pen or Tool.Highlight) UpdateToolCursor();
         }
+    }
+
+    private void Fill_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string tag })
+            _fillColor = tag == "transparent" ? null : (Color)ColorConverter.ConvertFromString(tag);
     }
 
     private void Thickness_Changed(object sender, SelectionChangedEventArgs e)
     {
         _thickness = CmbThickness.SelectedIndex switch { 0 => 2, 1 => 4, 2 => 7, 3 => 12, _ => 4 };
-        if (_activeTextBox != null) _activeTextBox.FontSize = FontSizeFromThickness();
     }
 
-    private double FontSizeFromThickness() => 12 + _thickness * 3;
+    // ── 글꼴 옵션 (텍스트 도구) ────────────────────────────────────────────
+    private string CurrentFontFamily =>
+        (CmbFont?.SelectedItem as ComboBoxItem)?.Tag as string ?? S.TextFontFamily;
+
+    private void Font_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (CmbFont.SelectedItem is not ComboBoxItem { Tag: string name }) return;
+        S.TextFontFamily = name;
+        S.Save();
+        if (_activeTextBox != null) _activeTextBox.FontFamily = new FontFamily(name);
+    }
+
+    private void FontSize_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (CmbFontSize.SelectedItem is string s && double.TryParse(s, out double size))
+            ApplyFontSize(size);
+    }
+
+    private void FontSize_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            CommitFontSizeText();
+            e.Handled = true;
+        }
+    }
+
+    private void FontSize_LostFocus(object sender, RoutedEventArgs e) => CommitFontSizeText();
+
+    private void CommitFontSizeText()
+    {
+        if (double.TryParse(CmbFontSize.Text.Trim(), out double size))
+            ApplyFontSize(size);
+        else
+            CmbFontSize.Text = S.TextFontSize.ToString();
+    }
+
+    private void ApplyFontSize(double size)
+    {
+        size = Math.Clamp(size, 6, 200);
+        S.TextFontSize = size;
+        S.Save();
+        if (CmbFontSize.Text != size.ToString()) CmbFontSize.Text = size.ToString();
+        if (_activeTextBox != null) _activeTextBox.FontSize = size;
+    }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
@@ -266,7 +372,7 @@ public partial class EditorWindow : Window
         }
     }
 
-    private void NewCapture_Click(object sender, RoutedEventArgs e) => _ = _main.StartRegionCapture();
+    private void NewCapture_Click(object sender, RoutedEventArgs e) => _ = _main.StartLastCapture();
 
     /// <summary>드래그 중이던 미완성 도형을 캔버스에서 제거한다 (Esc·도구 전환 시).</summary>
     private void CancelActiveDrawing()
@@ -281,9 +387,13 @@ public partial class EditorWindow : Window
     // ── 그리기 ────────────────────────────────────────────────────────────
     private SolidColorBrush StrokeBrush() => new(_color);
 
+    /// <summary>도형 채우기: 선택한 채우기 색 또는 투명(히트테스트만 되는 Transparent).</summary>
+    private Brush ShapeFillBrush() =>
+        _fillColor is { } c ? new SolidColorBrush(c) : Brushes.Transparent;
+
     private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (_currentItem == null || _image == null) return;
+        if (_currentItem == null || _image == null || _itemLoading) return;
         var pos = e.GetPosition(DrawCanvas);
 
         if (_tool == Tool.Text)
@@ -351,7 +461,7 @@ public partial class EditorWindow : Window
                 _previewShape = new Rectangle
                 {
                     Stroke = StrokeBrush(), StrokeThickness = _thickness,
-                    RadiusX = 2, RadiusY = 2, Fill = Brushes.Transparent
+                    RadiusX = 2, RadiusY = 2, Fill = ShapeFillBrush()
                 };
                 PlaceShape(_previewShape, new Rect(pos, pos));
                 DrawCanvas.Children.Add(_previewShape);
@@ -360,7 +470,7 @@ public partial class EditorWindow : Window
             case Tool.Ellipse:
                 _previewShape = new Ellipse
                 {
-                    Stroke = StrokeBrush(), StrokeThickness = _thickness, Fill = Brushes.Transparent
+                    Stroke = StrokeBrush(), StrokeThickness = _thickness, Fill = ShapeFillBrush()
                 };
                 PlaceShape(_previewShape, new Rect(pos, pos));
                 DrawCanvas.Children.Add(_previewShape);
@@ -422,6 +532,9 @@ public partial class EditorWindow : Window
         _drawing = false;
         DrawCanvas.ReleaseMouseCapture();
         var pos = e.GetPosition(DrawCanvas);
+        // MouseMove와 동일하게 클램프 — 캔버스 밖에서 놓아도 미리보기와 같은 영역에 적용
+        pos.X = Math.Clamp(pos.X, 0, DrawCanvas.Width);
+        pos.Y = Math.Clamp(pos.Y, 0, DrawCanvas.Height);
         var rect = new Rect(_start, pos);
 
         switch (_tool)
@@ -560,8 +673,8 @@ public partial class EditorWindow : Window
         var tb = new TextBox
         {
             MinWidth = 40,
-            FontSize = FontSizeFromThickness(),
-            FontFamily = new FontFamily("Malgun Gothic"),
+            FontSize = S.TextFontSize,
+            FontFamily = new FontFamily(CurrentFontFamily),
             FontWeight = FontWeights.SemiBold,
             Foreground = new SolidColorBrush(_color),
             Background = new SolidColorBrush(Color.FromArgb(30, 45, 125, 246)),
@@ -818,13 +931,21 @@ public partial class EditorWindow : Window
     }
 
     /// <summary>이미지 단계 undo/redo 후 캔버스를 새 이미지로 다시 세운다.</summary>
-    private void ReloadAfterImageHistory(string statusMsg)
+    private async void ReloadAfterImageHistory(string statusMsg)
     {
-        if (_currentItem == null) return;
-        var img = _currentItem.LoadFull();
+        if (_currentItem is not { } item) return;
+
+        int seq = ++_loadSeq;   // ShowItem과 같은 가드 — 로드 중 항목 전환 시 낡은 결과 폐기
+        _itemLoading = true;
+        BitmapSource? img;
+        try { img = await item.LoadFullAsync(); }
+        finally { if (seq == _loadSeq) _itemLoading = false; }
+
+        if (seq != _loadSeq || !ReferenceEquals(item, _currentItem)) return;
         if (img == null) return;
         _image = img;
         ResetCanvasState();
+        _numberCounter = 1;     // 이미지가 다른 리비전으로 바뀌었으니 번호도 처음부터
         ApplyImage();
         FitZoom();
         Status(statusMsg);
@@ -854,13 +975,13 @@ public partial class EditorWindow : Window
         }
     }
 
-    private void CopyHistoryItem(HistoryItem item)
+    private async void CopyHistoryItem(HistoryItem item)
     {
         // 지금 편집 중인 항목이면 그리던 주석을 먼저 파일에 반영해 화면과 동일한 이미지를 복사한다
         FlattenPendingEdits();
-        if (item.LoadFull() is { } img)
+        if (await item.LoadFullAsync() is { } img)
         {
-            bool ok = CaptureService.CopyToClipboard(img, item.FilePath);
+            bool ok = await CaptureService.CopyToClipboardAsync(img, item.FilePath);
             Status(Loc.Get(ok ? "Editor.Status.Copied" : "Msg.CopyFailed"));
         }
     }
@@ -886,33 +1007,40 @@ public partial class EditorWindow : Window
             CopyHistoryItem(item);
     }
 
-    private void HistorySaveOne_Click(object sender, RoutedEventArgs e)
+    private async void HistorySaveOne_Click(object sender, RoutedEventArgs e)
     {
         FlattenPendingEdits();   // 편집 중 항목이면 화면 그대로 저장되도록
-        if (HistoryList.SelectedItem is not HistoryItem item || item.LoadFull() is not { } img) return;
+        if (HistoryList.SelectedItem is not HistoryItem item) return;
+        if (await item.LoadFullAsync() is not { } img) return;
         try
         {
             var path = S.NewFilePath();
-            CaptureService.SaveToFile(img, path, S.JpgQuality);
+            await Task.Run(() => CaptureService.SaveToFile(img, path, S.JpgQuality));
             Status(Loc.F("Editor.Status.Saved", path));
         }
         catch { }
     }
 
-    private void HistorySaveAll_Click(object sender, RoutedEventArgs e)
+    private async void HistorySaveAll_Click(object sender, RoutedEventArgs e)
     {
         FlattenPendingEdits();
-        int saved = 0;
-        foreach (var item in HistoryService.Items.ToList())
+        var items = HistoryService.Items.ToList();
+        int saved = await Task.Run(() =>
         {
-            if (item.LoadFull() is not { } img) continue;
-            try
+            int n = 0;
+            foreach (var item in items)
             {
-                CaptureService.SaveToFile(img, S.NewFilePath(), S.JpgQuality);
-                saved++;
+                if (item.LoadFull() is not { } img) continue;
+                try
+                {
+                    // 저장 직후 파일이 생기므로 다음 채번이 자동으로 _1, _2… 로 밀린다
+                    CaptureService.SaveToFile(img, S.NewFilePath(), S.JpgQuality);
+                    n++;
+                }
+                catch { }
             }
-            catch { }
-        }
+            return n;
+        });
         Status(Loc.F("Editor.Status.SavedAll", saved));
     }
 

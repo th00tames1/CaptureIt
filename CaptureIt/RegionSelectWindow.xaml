@@ -1,4 +1,4 @@
-﻿<Window x:Class="CaptureIt.RegionSelectWindow"
+<Window x:Class="CaptureIt.RegionSelectWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False"
@@ -37,39 +37,6 @@
         <Border x:Name="HintBar" Background="#D91F2937" CornerRadius="10" Padding="18,9"
                 HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,28,0,0">
             <TextBlock x:Name="HintText" Foreground="White" FontSize="13"/>
-        </Border>
-
-        <!-- 고정 크기: 크기 입력/잠금 패널 -->
-        <Border x:Name="FixedPanel" Background="#E61F2937" CornerRadius="10" Padding="14,9"
-                HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,86,0,0"
-                Visibility="Collapsed" MouseLeftButtonDown="FixedPanel_MouseDown">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBox x:Name="FixedWBox" Width="62" FontSize="13" Padding="4,3" TextAlignment="Center"
-                         VerticalContentAlignment="Center" BorderThickness="0"
-                         Background="#FFFFFF" Foreground="#1F2937"
-                         KeyDown="FixedSize_KeyDown" LostFocus="FixedSize_LostFocus"/>
-                <TextBlock Text="×" Foreground="White" FontSize="13" Margin="8,0" VerticalAlignment="Center"/>
-                <TextBox x:Name="FixedHBox" Width="62" FontSize="13" Padding="4,3" TextAlignment="Center"
-                         VerticalContentAlignment="Center" BorderThickness="0"
-                         Background="#FFFFFF" Foreground="#1F2937"
-                         KeyDown="FixedSize_KeyDown" LostFocus="FixedSize_LostFocus"/>
-                <Button x:Name="FixedCaptureBtn" Margin="14,0,0,0" Cursor="Hand" Padding="12,4"
-                        Click="FixedCaptureBtn_Click" FontSize="12" FontWeight="SemiBold">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="#22C55E" CornerRadius="7" Padding="{TemplateBinding Padding}">
-                                <ContentPresenter VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                    <TextBlock x:Name="FixedCaptureText" Foreground="White"/>
-                </Button>
-            </StackPanel>
         </Border>
     </Grid>
 </Window>

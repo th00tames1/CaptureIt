@@ -140,11 +140,18 @@ public static class CaptureService
         return formats != null && SetClipboardData(formats.Value.png, formats.Value.dib, filePath);
     }
 
-    /// <summary>큰 이미지(스크롤 캡처 등)도 UI를 멈추지 않도록 인코딩을 백그라운드에서 수행.</summary>
+    /// <summary>큰 이미지(스크롤 캡처 등)도 UI를 멈추지 않도록 인코딩을 백그라운드에서 수행.
+    /// 클립보드가 잠겨 있으면 UI를 막지 않는 지연 후 재시도한다.</summary>
     public static async Task<bool> CopyToClipboardAsync(BitmapSource image, string? filePath = null)
     {
         var formats = await Task.Run(() => EncodeClipboardFormats(image));   // image는 Frozen
-        return formats != null && SetClipboardData(formats.Value.png, formats.Value.dib, filePath);
+        if (formats == null) return false;
+        for (int attempt = 0; attempt < 3; attempt++)
+        {
+            if (TrySetClipboardOnce(formats.Value.png, formats.Value.dib, filePath)) return true;
+            if (attempt < 2) await Task.Delay(150);
+        }
+        return false;
     }
 
     private static (byte[] png, byte[] dib)? EncodeClipboardFormats(BitmapSource image)
@@ -192,23 +199,29 @@ public static class CaptureService
     {
         for (int attempt = 0; attempt < 3; attempt++)
         {
-            try
-            {
-                var data = new System.Windows.DataObject();
-                data.SetData(System.Windows.DataFormats.Dib, new MemoryStream(dib), false);
-                data.SetData("PNG", new MemoryStream(png), false);
-                if (filePath != null && File.Exists(filePath))
-                    data.SetFileDropList(new System.Collections.Specialized.StringCollection { filePath });
-
-                System.Windows.Clipboard.SetDataObject(data, true);
-                return true;
-            }
-            catch (Exception ex) when (ex is System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
-            {
-                if (attempt < 2) System.Threading.Thread.Sleep(150);
-            }
+            if (TrySetClipboardOnce(png, dib, filePath)) return true;
+            if (attempt < 2) System.Threading.Thread.Sleep(150);
         }
         return false;
+    }
+
+    private static bool TrySetClipboardOnce(byte[] png, byte[] dib, string? filePath)
+    {
+        try
+        {
+            var data = new System.Windows.DataObject();
+            data.SetData(System.Windows.DataFormats.Dib, new MemoryStream(dib), false);
+            data.SetData("PNG", new MemoryStream(png), false);
+            if (filePath != null && File.Exists(filePath))
+                data.SetFileDropList(new System.Collections.Specialized.StringCollection { filePath });
+
+            System.Windows.Clipboard.SetDataObject(data, true);
+            return true;
+        }
+        catch (Exception ex) when (ex is System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
+        {
+            return false;
+        }
     }
 
     // ── 스크롤/요소 캡처 보조 ──────────────────────────────────────────────
@@ -230,6 +243,51 @@ public static class CaptureService
         var h = WindowFromPoint(new POINT { X = x, Y = y });
         return h == IntPtr.Zero ? IntPtr.Zero : GetAncestor(h, GA_ROOT);
     }
+
+    [DllImport("user32.dll")] private static extern IntPtr ChildWindowFromPointEx(IntPtr parent, POINT pt, uint flags);
+    [DllImport("user32.dll")] private static extern bool ScreenToClient(IntPtr hwnd, ref POINT pt);
+    [DllImport("user32.dll")] private static extern bool GetClientRect(IntPtr hwnd, out RECT rect);
+    [DllImport("user32.dll")] private static extern bool ClientToScreen(IntPtr hwnd, ref POINT pt);
+    [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hwnd);
+
+    private const uint CWP_SKIPINVISIBLE = 0x0001;
+
+    /// <summary>
+    /// 커서 아래 UI 요소(자식 창)의 화면 영역. UIA와 달리 즉시(<1ms) 응답하므로
+    /// 단위 영역 하이라이트가 커서를 실시간으로 따라간다.
+    /// </summary>
+    public static Rectangle GetElementRectAt(int x, int y)
+    {
+        var top = WindowFromPoint(new POINT { X = x, Y = y });
+        if (top == IntPtr.Zero) return Rectangle.Empty;
+
+        // 최상위 창부터 커서 위치의 가장 깊은 자식 창까지 내려간다
+        var cur = GetAncestor(top, GA_ROOT);
+        for (int depth = 0; depth < 32; depth++)
+        {
+            var pt = new POINT { X = x, Y = y };
+            ScreenToClient(cur, ref pt);
+            var child = ChildWindowFromPointEx(cur, pt, CWP_SKIPINVISIBLE);
+            if (child == IntPtr.Zero || child == cur) break;
+            cur = child;
+        }
+
+        var bounds = GetWindowBounds(cur);
+        if (bounds.Width < 12 || bounds.Height < 12)
+            bounds = GetWindowBounds(GetAncestor(top, GA_ROOT));
+        return bounds;
+    }
+
+    /// <summary>창의 클라이언트 영역(제목줄·테두리 제외)을 화면 물리 좌표로 얻는다.</summary>
+    public static Rectangle GetClientBounds(IntPtr hwnd)
+    {
+        if (!GetClientRect(hwnd, out var r)) return Rectangle.Empty;
+        var tl = new POINT();
+        ClientToScreen(hwnd, ref tl);
+        return new Rectangle(tl.X, tl.Y, r.Right, r.Bottom);
+    }
+
+    public static void BringToForeground(IntPtr hwnd) => SetForegroundWindow(hwnd);
 
     /// <summary>커서를 옮기고 휠을 아래로 굴린다 (스크롤 캡처용).</summary>
     public static void WheelDownAt(int x, int y, int notches = 3)

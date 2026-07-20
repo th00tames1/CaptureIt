@@ -41,11 +41,15 @@
     <sys:String x:Key="Main.Fixed">고정 크기</sys:String>
     <sys:String x:Key="Main.Tip.Element">버튼·이미지 같은 화면 요소를 클릭 한 번으로 캡처합니다</sys:String>
     <sys:String x:Key="Main.Tip.Scroll">긴 웹페이지 등 스크롤되는 내용을 이어붙여 캡처합니다</sys:String>
-    <sys:String x:Key="Main.Tip.Fixed">정해진 크기 틀을 움직여 클릭한 곳을 캡처합니다</sys:String>
+    <sys:String x:Key="Main.Tip.Fixed">화면에 캡처 틀을 고정해 두고, 내용만 바꿔가며 반복 캡처합니다</sys:String>
     <sys:String x:Key="Overlay.ElementHint">캡처할 화면 요소 위에 마우스를 올리고 클릭하세요  ·  Esc 취소</sys:String>
     <sys:String x:Key="Overlay.FixedHint">모서리를 끌어 크기 조절, 안쪽을 끌어 이동  ·  Enter 또는 더블클릭으로 캡처  ·  Esc 취소</sys:String>
     <sys:String x:Key="Overlay.CaptureBtn">캡처 (Enter)</sys:String>
-    <sys:String x:Key="Overlay.ScrollHint">스크롤되는 내용 영역을 드래그하세요 (예: 웹페이지 본문)  ·  Esc 취소</sys:String>
+    <sys:String x:Key="Overlay.ScrollHint">스크롤할 창을 클릭하세요 — 자동으로 끝까지 스크롤하며 캡처합니다  ·  Esc 취소</sys:String>
+    <sys:String x:Key="Feedback.Countdown">{0}초 후 캡처  ·  Esc 취소</sys:String>
+    <sys:String x:Key="Feedback.Processing">캡처 처리 중…</sys:String>
+    <sys:String x:Key="Viewfinder.Capture">캡처</sys:String>
+    <sys:String x:Key="Viewfinder.Tip">틀은 화면에 고정됩니다. 아래 내용을 바꿔가며 캡처 버튼(또는 Enter)으로 반복 캡처하세요. Esc 닫기</sys:String>
     <sys:String x:Key="Scroll.Progress">스크롤 캡처 중… {0}장  ·  Esc 중지</sys:String>
     <sys:String x:Key="Scroll.Failed">스크롤 캡처에 실패했습니다. 스크롤되는 영역을 선택했는지 확인해 주세요.</sys:String>
 
@@ -67,7 +71,7 @@
     <!-- 편집기 -->
     <sys:String x:Key="Editor.Title">CaptureIt 편집기</sys:String>
     <sys:String x:Key="Editor.NewCapture">새 캡처</sys:String>
-    <sys:String x:Key="Editor.Tip.NewCapture">새 영역 캡처를 시작합니다</sys:String>
+    <sys:String x:Key="Editor.Tip.NewCapture">마지막에 사용한 방식으로 새 캡처를 시작합니다</sys:String>
     <sys:String x:Key="Editor.Select">선택</sys:String>
     <sys:String x:Key="Editor.Pen">펜</sys:String>
     <sys:String x:Key="Editor.Highlight">형광펜</sys:String>
@@ -93,6 +97,9 @@
     <sys:String x:Key="Editor.Tip.Eraser">지우개 — 그린 것을 클릭해 지웁니다</sys:String>
     <sys:String x:Key="Editor.Tip.Crop">자르기 — 드래그한 부분만 남깁니다</sys:String>
     <sys:String x:Key="Editor.Thickness">굵기</sys:String>
+    <sys:String x:Key="Editor.Fill">채우기</sys:String>
+    <sys:String x:Key="Editor.FillNone">채우기 없음 (투명)</sys:String>
+    <sys:String x:Key="Editor.Font">글꼴 · 크기</sys:String>
     <sys:String x:Key="Editor.Thin">가늘게</sys:String>
     <sys:String x:Key="Editor.Normal">보통</sys:String>
     <sys:String x:Key="Editor.Thick">굵게</sys:String>

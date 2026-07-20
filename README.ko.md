@@ -20,6 +20,12 @@ Made by **Heechan Jeong** · MIT License
 | **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | 압축 해제 → **우클릭 → 열기** |
 | macOS (Intel) | [`CaptureIt-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-intel.zip) | 압축 해제 → **우클릭 → 열기** |
 
+> **Windows SmartScreen**: CaptureIt은 유료 코드 서명 인증서가 없는 신생 오픈소스 앱이라
+> 처음 실행할 때 *"Windows에서 PC를 보호했습니다"* 경고가 뜰 수 있습니다.
+> **추가 정보 → 실행**을 누르면 됩니다. 모든 릴리스 파일은 이 저장소의 공개 소스에서
+> GitHub Actions가 자동 빌드하므로 [빌드 과정](.github/workflows/release.yml)을 직접 검증할 수 있고,
+> 다운로드가 쌓이면 Microsoft 평판이 올라가 경고는 자연히 사라집니다.
+>
 > **macOS**: 서명되지 않은 앱이라 첫 실행은 우클릭 → 열기로 해야 하며, 화면 기록 권한을 허용해야 합니다.
 > **Linux**: `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` / ImageMagick 중 하나가 필요합니다
 > (대부분의 배포판에 기본 포함). 클립보드 복사는 `wl-clipboard`(Wayland) 또는 `xclip`(X11).
@@ -56,6 +62,8 @@ Made by **Heechan Jeong** · MIT License
 ### 편집기
 
 - 펜, 형광펜, 직선, 화살표, 사각형, 원, 텍스트, 번호 스탬프 ①②③
+- 사각형/원 채우기·외곽선 색 지정 (체크무늬 투명 포함), 텍스트 글꼴·크기 선택
+- 펜/형광펜 선택 시 현재 색이 반영된 도구 모양 커서
 - 모자이크(개인정보 가리기) · 지우개 · 자르기 · 초기화
 - 8가지 색상 + 4단계 굵기 · `Ctrl+휠` 확대/축소
 - 저장(`Ctrl+S`) · 복사(`Ctrl+C`) · 다른 이름으로 저장 (PNG/JPG/BMP)

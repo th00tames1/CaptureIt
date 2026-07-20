@@ -4,37 +4,29 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using CaptureIt.Services;
 
 namespace CaptureIt;
 
 /// <summary>
 /// 정지된 화면 위에서 캡처 대상을 고르는 전체 화면 오버레이.
-/// Region/ScrollRegion: 드래그로 영역 선택 · Window: 창 클릭 ·
-/// Element: UI 요소 하이라이트 후 클릭 (클릭 통과 + 마우스 훅) · Fixed: 고정 크기 틀 클릭.
+/// Region: 드래그로 영역 선택 · Window/ScrollWindow: 창 하이라이트 후 클릭 ·
+/// Element: 커서 아래 UI 요소를 실시간 하이라이트 후 클릭 (클릭 통과 + 마우스 훅 + Win32 자식 창 감지).
 /// 반환 좌표는 정지 이미지(가상 화면)의 픽셀 좌표.
 /// </summary>
 public partial class RegionSelectWindow : Window
 {
-    public enum SelectMode { Region, Window, Element, Fixed, ScrollRegion }
+    public enum SelectMode { Region, Window, Element, ScrollRegion, ScrollWindow }
 
     public Int32Rect? SelectedPixelRect { get; private set; }
+
+    /// <summary>Window/ScrollWindow 모드에서 클릭으로 고른 창.</summary>
+    public CaptureService.WindowInfo? SelectedWindow { get; private set; }
 
     private readonly BitmapSource _frozen;
     private readonly SelectMode _mode;
     private readonly List<CaptureService.WindowInfo> _windows;
     private readonly System.Drawing.Rectangle _virtualBounds;   // 물리 픽셀
-
-    // Fixed(고정 크기) 모드 — "자르기 사각형" 모델: 항상 화면에 놓인 채 드래그로 이동/크기 조절.
-    private int _fw, _fh;                                        // 현재 프레임 크기 (물리 픽셀)
-    private System.Drawing.Rectangle _fixedFrame;                // 현재 프레임 (물리 절대 좌표)
-    private enum FixedDrag { None, Move, N, S, E, W, NE, NW, SE, SW }
-    private FixedDrag _fixedDrag = FixedDrag.None;
-    private System.Drawing.Point _fixedDragStart;
-    private System.Drawing.Rectangle _fixedDragFrame;
-    private readonly System.Windows.Shapes.Rectangle[] _handles = new System.Windows.Shapes.Rectangle[8];
-    private bool _syncingSizeBoxes;
 
     private double _scale = 1.0;        // DIU → 물리 픽셀 배율
     private bool _dragging;
@@ -46,20 +38,17 @@ public partial class RegionSelectWindow : Window
     // Element 모드: 클릭 통과 + 저수준 마우스 훅
     private IntPtr _mouseHook = IntPtr.Zero;
     private HookProc? _hookProc;        // GC 방지용 참조 유지
-    private volatile bool _uiaLoopRunning;
+    private bool _elementUpdateQueued;  // 이동 이벤트 폭주 시 프레임당 1회만 갱신
     private bool _leftPending, _rightPending;   // DOWN을 삼킨 버튼의 UP 대기
     private bool _done;                          // 중복 확정/취소 방지
 
     public RegionSelectWindow(BitmapSource frozen, SelectMode mode,
-                              List<CaptureService.WindowInfo>? windows = null,
-                              int fixedW = 0, int fixedH = 0)
+                              List<CaptureService.WindowInfo>? windows = null)
     {
         InitializeComponent();
         _frozen = frozen;
         _mode = mode;
         _windows = windows ?? new();
-        _fw = Math.Max(10, fixedW);
-        _fh = Math.Max(10, fixedH);
         _virtualBounds = System.Windows.Forms.SystemInformation.VirtualScreen;
 
         FrozenImage.Source = _frozen;
@@ -67,46 +56,16 @@ public partial class RegionSelectWindow : Window
         {
             SelectMode.Window => Loc.Get("Overlay.WindowHint"),
             SelectMode.Element => Loc.Get("Overlay.ElementHint"),
-            SelectMode.Fixed => Loc.Get("Overlay.FixedHint"),
-            SelectMode.ScrollRegion => Loc.Get("Overlay.ScrollHint"),
+            SelectMode.ScrollRegion or SelectMode.ScrollWindow => Loc.Get("Overlay.ScrollHint"),
             _ => Loc.Get("Overlay.RegionHint"),
         };
-
-        if (_mode == SelectMode.Fixed) InitFixedMode();
 
         SourceInitialized += (_, _) =>
         {
             FitToVirtualScreen();
             if (_mode == SelectMode.Element) EnterElementMode();
         };
-        Loaded += (_, _) =>
-        {
-            Activate();
-            Focus();
-
-            // 안내/패널을 커서가 있는 모니터의 가로 중앙에 배치 (듀얼 모니터 경계에 걸치지 않게)
-            var cursor = System.Windows.Forms.Cursor.Position;
-            var screen = System.Windows.Forms.Screen.FromPoint(cursor).Bounds;
-            Dispatcher.BeginInvoke(() =>
-            {
-                double centerX = (screen.X + screen.Width / 2.0 - _virtualBounds.X) / _scale;
-                foreach (var el in new FrameworkElement[] { HintBar, FixedPanel })
-                {
-                    if (el.Visibility != Visibility.Visible) continue;
-                    el.HorizontalAlignment = HorizontalAlignment.Left;
-                    el.Margin = new Thickness(Math.Max(8, centerX - el.ActualWidth / 2), el.Margin.Top, 0, 0);
-                }
-            }, DispatcherPriority.Loaded);
-
-            if (_mode == SelectMode.Fixed)
-            {
-                // 프레임을 커서가 있는 모니터의 중앙에 놓는다 (커서를 따라다니지 않음)
-                _fixedFrame = ClampFrame(new System.Drawing.Rectangle(
-                    screen.X + (screen.Width - _fw) / 2,
-                    screen.Y + (screen.Height - _fh) / 2, _fw, _fh));
-                UpdateFixedVisuals();
-            }
-        };
+        Loaded += (_, _) => { Activate(); Focus(); };
         Closed += (_, _) => LeaveElementMode();
 
         MouseLeftButtonDown += OnMouseDown;
@@ -131,16 +90,7 @@ public partial class RegionSelectWindow : Window
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape) { Cancel(); return; }
-
-        if (_mode != SelectMode.Fixed) return;
-        if (FixedWBox.IsKeyboardFocused || FixedHBox.IsKeyboardFocused) return;   // 숫자 입력 중
-
-        if (e.Key == Key.Enter)
-        {
-            ConfirmFixed();
-            e.Handled = true;
-        }
+        if (e.Key == Key.Escape) Cancel();
     }
 
     private void Cancel()
@@ -151,35 +101,19 @@ public partial class RegionSelectWindow : Window
         Close();
     }
 
-    // ── 마우스 처리 (Region/Window/Fixed/ScrollRegion) ─────────────────────
+    // ── 마우스 처리 (Region/Window/ScrollRegion/ScrollWindow) ──────────────
     private void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         switch (_mode)
         {
             case SelectMode.Window:
-                if (_hoverWindow != null) ConfirmPhysicalRect(_hoverWindow.Bounds);
-                return;
-
-            case SelectMode.Fixed:
-            {
-                var phys = ToPhys(e.GetPosition(this));
-                if (e.ClickCount == 2 && _fixedFrame.Contains(phys)) { ConfirmFixed(); return; }
-
-                var hit = HitTestFixed(phys);
-                if (hit == FixedDrag.None)
+            case SelectMode.ScrollWindow:
+                if (_hoverWindow != null)
                 {
-                    // 프레임 밖 클릭: 프레임을 클릭 지점 중심으로 옮긴다
-                    _fixedFrame = ClampFrame(new System.Drawing.Rectangle(
-                        phys.X - _fw / 2, phys.Y - _fh / 2, _fw, _fh));
-                    UpdateFixedVisuals();
-                    hit = FixedDrag.Move;   // 그대로 끌면 이동으로 이어진다
+                    SelectedWindow = _hoverWindow;
+                    ConfirmPhysicalRect(_hoverWindow.Bounds);
                 }
-                _fixedDrag = hit;
-                _fixedDragStart = phys;
-                _fixedDragFrame = _fixedFrame;
-                CaptureMouse();
                 return;
-            }
 
             case SelectMode.Element:
                 return;   // Element 모드는 훅으로 처리
@@ -201,12 +135,8 @@ public partial class RegionSelectWindow : Window
         switch (_mode)
         {
             case SelectMode.Window:
+            case SelectMode.ScrollWindow:
                 UpdateHoverWindow(pos);
-                return;
-
-            case SelectMode.Fixed:
-                if (_fixedDrag != FixedDrag.None) { ApplyFixedDrag(ToPhys(pos)); return; }
-                Cursor = CursorFor(HitTestFixed(ToPhys(pos)));
                 return;
 
             case SelectMode.Element:
@@ -230,12 +160,6 @@ public partial class RegionSelectWindow : Window
 
     private void OnMouseUp(object sender, MouseButtonEventArgs e)
     {
-        if (_mode == SelectMode.Fixed && _fixedDrag != FixedDrag.None)
-        {
-            _fixedDrag = FixedDrag.None;
-            ReleaseMouseCapture();
-            return;
-        }
         if (_mode is not (SelectMode.Region or SelectMode.ScrollRegion) || !_dragging) return;
         _dragging = false;
         ReleaseMouseCapture();
@@ -254,211 +178,34 @@ public partial class RegionSelectWindow : Window
         Close();
     }
 
-    // ── 고정 크기 모드 ─────────────────────────────────────────────────────
-    private void InitFixedMode()
-    {
-        FixedPanel.Visibility = Visibility.Visible;
-        FixedCaptureText.Text = Loc.Get("Overlay.CaptureBtn");
-        Cursor = Cursors.Arrow;   // 프레임을 다루는 모드 — 십자선이 아니라 화살표
-        SyncSizeBoxes();
-
-        // 크기 조절 핸들 8개 (표시 전용 — 히트 테스트는 좌표 계산으로)
-        for (int i = 0; i < 8; i++)
-        {
-            var handle = new System.Windows.Shapes.Rectangle
-            {
-                Width = 9,
-                Height = 9,
-                Fill = System.Windows.Media.Brushes.White,
-                Stroke = new System.Windows.Media.SolidColorBrush(
-                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D7DF6")),
-                StrokeThickness = 1.6,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Visibility = Visibility.Collapsed,
-                IsHitTestVisible = false
-            };
-            _handles[i] = handle;
-            Root.Children.Add(handle);
-        }
-    }
-
-    private System.Drawing.Point ToPhys(Point posDiu) => new(
-        (int)(posDiu.X * _scale) + _virtualBounds.X,
-        (int)(posDiu.Y * _scale) + _virtualBounds.Y);
-
-    /// <summary>프레임·핸들·크기 라벨·입력 상자를 현재 상태로 갱신한다.</summary>
-    private void UpdateFixedVisuals()
-    {
-        var r = PhysicalToLocal(_fixedFrame);
-        ShowSelection(r);
-        SyncSizeBoxes();
-
-        // 핸들 위치: 모서리 4 + 변 중앙 4
-        var pts = new (double x, double y)[]
-        {
-            (r.X, r.Y), (r.X + r.Width / 2, r.Y), (r.Right, r.Y),
-            (r.X, r.Y + r.Height / 2), (r.Right, r.Y + r.Height / 2),
-            (r.X, r.Bottom), (r.X + r.Width / 2, r.Bottom), (r.Right, r.Bottom),
-        };
-        for (int i = 0; i < 8; i++)
-        {
-            _handles[i].Visibility = Visibility.Visible;
-            _handles[i].Margin = new Thickness(pts[i].x - 4.5, pts[i].y - 4.5, 0, 0);
-        }
-    }
-
-    private void SyncSizeBoxes()
-    {
-        _syncingSizeBoxes = true;
-        if (!FixedWBox.IsKeyboardFocused) FixedWBox.Text = _fw.ToString();
-        if (!FixedHBox.IsKeyboardFocused) FixedHBox.Text = _fh.ToString();
-        _syncingSizeBoxes = false;
-    }
-
-    /// <summary>입력 상자의 숫자를 프레임 크기에 적용한다.</summary>
-    private void ApplySizeInput()
-    {
-        if (_syncingSizeBoxes) return;
-        if (int.TryParse(FixedWBox.Text.Trim(), out int w))
-            _fw = Math.Clamp(w, 10, _virtualBounds.Width);
-        if (int.TryParse(FixedHBox.Text.Trim(), out int h))
-            _fh = Math.Clamp(h, 10, _virtualBounds.Height);
-
-        // 프레임 중심을 유지한 채 크기만 바꾼다
-        var c = new System.Drawing.Point(_fixedFrame.X + _fixedFrame.Width / 2,
-                                         _fixedFrame.Y + _fixedFrame.Height / 2);
-        _fixedFrame = ClampFrame(new System.Drawing.Rectangle(c.X - _fw / 2, c.Y - _fh / 2, _fw, _fh));
-        UpdateFixedVisuals();
-    }
-
-    private System.Drawing.Rectangle ClampFrame(System.Drawing.Rectangle f)
-    {
-        int w = Math.Min(f.Width, _virtualBounds.Width);
-        int h = Math.Min(f.Height, _virtualBounds.Height);
-        int x = Math.Clamp(f.X, _virtualBounds.X, _virtualBounds.Right - w);
-        int y = Math.Clamp(f.Y, _virtualBounds.Y, _virtualBounds.Bottom - h);
-        return new System.Drawing.Rectangle(x, y, w, h);
-    }
-
-    private FixedDrag HitTestFixed(System.Drawing.Point p)
-    {
-        int grip = (int)(10 * _scale);
-        var f = _fixedFrame;
-        bool nearL = Math.Abs(p.X - f.Left) <= grip, nearR = Math.Abs(p.X - f.Right) <= grip;
-        bool nearT = Math.Abs(p.Y - f.Top) <= grip, nearB = Math.Abs(p.Y - f.Bottom) <= grip;
-        bool inX = p.X >= f.Left - grip && p.X <= f.Right + grip;
-        bool inY = p.Y >= f.Top - grip && p.Y <= f.Bottom + grip;
-
-        if (nearT && nearL) return FixedDrag.NW;
-        if (nearT && nearR) return FixedDrag.NE;
-        if (nearB && nearL) return FixedDrag.SW;
-        if (nearB && nearR) return FixedDrag.SE;
-        if (nearT && inX) return FixedDrag.N;
-        if (nearB && inX) return FixedDrag.S;
-        if (nearL && inY) return FixedDrag.W;
-        if (nearR && inY) return FixedDrag.E;
-        if (f.Contains(p)) return FixedDrag.Move;
-        return FixedDrag.None;
-    }
-
-    private static Cursor CursorFor(FixedDrag d) => d switch
-    {
-        FixedDrag.NW or FixedDrag.SE => Cursors.SizeNWSE,
-        FixedDrag.NE or FixedDrag.SW => Cursors.SizeNESW,
-        FixedDrag.N or FixedDrag.S => Cursors.SizeNS,
-        FixedDrag.E or FixedDrag.W => Cursors.SizeWE,
-        FixedDrag.Move => Cursors.SizeAll,
-        _ => Cursors.Arrow,
-    };
-
-    private void ApplyFixedDrag(System.Drawing.Point p)
-    {
-        int dx = p.X - _fixedDragStart.X, dy = p.Y - _fixedDragStart.Y;
-        var s = _fixedDragFrame;
-        int left = s.Left, top = s.Top, right = s.Right, bottom = s.Bottom;
-
-        switch (_fixedDrag)
-        {
-            case FixedDrag.Move:
-                _fixedFrame = ClampFrame(new System.Drawing.Rectangle(s.X + dx, s.Y + dy, s.Width, s.Height));
-                _fw = _fixedFrame.Width; _fh = _fixedFrame.Height;
-                UpdateFixedVisuals();
-                return;
-            case FixedDrag.N: top += dy; break;
-            case FixedDrag.S: bottom += dy; break;
-            case FixedDrag.W: left += dx; break;
-            case FixedDrag.E: right += dx; break;
-            case FixedDrag.NW: top += dy; left += dx; break;
-            case FixedDrag.NE: top += dy; right += dx; break;
-            case FixedDrag.SW: bottom += dy; left += dx; break;
-            case FixedDrag.SE: bottom += dy; right += dx; break;
-        }
-
-        // 최소 크기 유지 + 화면 클램프
-        if (right - left < 10) { if (_fixedDrag is FixedDrag.W or FixedDrag.NW or FixedDrag.SW) left = right - 10; else right = left + 10; }
-        if (bottom - top < 10) { if (_fixedDrag is FixedDrag.N or FixedDrag.NW or FixedDrag.NE) top = bottom - 10; else bottom = top + 10; }
-        left = Math.Max(left, _virtualBounds.X); top = Math.Max(top, _virtualBounds.Y);
-        right = Math.Min(right, _virtualBounds.Right); bottom = Math.Min(bottom, _virtualBounds.Bottom);
-
-        _fixedFrame = System.Drawing.Rectangle.FromLTRB(left, top, right, bottom);
-        _fw = _fixedFrame.Width; _fh = _fixedFrame.Height;
-        UpdateFixedVisuals();
-    }
-
-    private void ConfirmFixed()
-    {
-        if (_fixedFrame.Width >= 10) ConfirmPhysicalRect(_fixedFrame);
-    }
-
-    // ── 고정 크기 패널 이벤트 ──────────────────────────────────────────────
-    private void FixedPanel_MouseDown(object sender, MouseButtonEventArgs e) => e.Handled = true;
-
-    private void FixedSize_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            ApplySizeInput();
-            Focus();   // 창으로 포커스를 되돌려야 Enter 캡처가 다시 동작한다
-            e.Handled = true;
-        }
-    }
-
-    private void FixedSize_LostFocus(object sender, RoutedEventArgs e) => ApplySizeInput();
-
-    private void FixedCaptureBtn_Click(object sender, RoutedEventArgs e) => ConfirmFixed();
-
     // ── 단위 영역(Element) 모드 ────────────────────────────────────────────
     private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
     [DllImport("user32.dll")] private static extern IntPtr SetWindowsHookEx(int id, HookProc proc, IntPtr hMod, uint tid);
     [DllImport("user32.dll")] private static extern bool UnhookWindowsHookEx(IntPtr hhk);
     [DllImport("user32.dll")] private static extern IntPtr CallNextHookEx(IntPtr hhk, int code, IntPtr w, IntPtr l);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr GetModuleHandle(string? name);
-    [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr hwnd, int index);
-    [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr hwnd, int index, int value);
-    [DllImport("user32.dll")] private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint key, byte alpha, uint flags);
+    [DllImport("user32.dll")] private static extern bool GetCursorPos(out System.Drawing.Point p);
 
     private const int WH_MOUSE_LL = 14;
     private const int WM_MOUSEMOVE = 0x0200;
     private const int WM_LBUTTONDOWN = 0x0201, WM_LBUTTONUP = 0x0202;
     private const int WM_RBUTTONDOWN = 0x0204, WM_RBUTTONUP = 0x0205;
-    private const int GWL_EXSTYLE = -20;
-    private const int WS_EX_TRANSPARENT = 0x20, WS_EX_LAYERED = 0x80000;
-
-    [DllImport("user32.dll")] private static extern bool GetCursorPos(out System.Drawing.Point p);
+    private const int WM_NCHITTEST = 0x0084;
+    private static readonly IntPtr HTTRANSPARENT = new(-1);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MSLLHOOKSTRUCT { public int X, Y; public uint MouseData, Flags, Time; public IntPtr ExtraInfo; }
 
-    /// <summary>클릭 통과 창으로 전환하고 저수준 마우스 훅으로 이동/클릭을 받는다.
-    /// (UIA가 오버레이 자신 대신 아래의 실제 UI 요소를 보게 하기 위함)</summary>
+    private HwndSource? _hwndSource;
+
+    /// <summary>
+    /// 히트 테스트만 통과시키고(WM_NCHITTEST → HTTRANSPARENT) 저수준 마우스 훅으로
+    /// 이동/클릭을 받는다. 레이어드 스타일을 쓰지 않으므로 오버레이 렌더링이 그대로 유지된다.
+    /// </summary>
     private void EnterElementMode()
     {
-        var hwnd = new WindowInteropHelper(this).Handle;
-        SetWindowLong(hwnd, GWL_EXSTYLE,
-            GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT | WS_EX_LAYERED);
-        // WS_EX_LAYERED를 나중에 붙인 창은 알파를 지정해야 다시 그려진다 (안 하면 투명 유령 창이 됨)
-        SetLayeredWindowAttributes(hwnd, 0, 255, 0x2 /* LWA_ALPHA */);
+        _hwndSource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+        _hwndSource?.AddHook(HitTestPassThrough);
 
         _hookProc = MouseHookCallback;
         _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _hookProc, GetModuleHandle(null), 0);
@@ -469,62 +216,27 @@ public partial class RegionSelectWindow : Window
             return;
         }
 
-        StartUiaLoop();
+        // 첫 하이라이트 (마우스가 아직 안 움직여도 현재 위치 기준으로 표시)
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (!_done && GetCursorPos(out var p)) UpdateHoverElement(p.X, p.Y);
+        }, System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
-    /// <summary>
-    /// UIA 조회는 느릴 수 있어(수백 ms) 반드시 백그라운드 MTA 스레드에서 돌린다.
-    /// UI 스레드가 막히면 Windows가 저수준 훅을 조용히 제거해 버리기 때문.
-    /// </summary>
-    private void StartUiaLoop()
+    private IntPtr HitTestPassThrough(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        _uiaLoopRunning = true;
-        var thread = new Thread(() =>
+        if (msg == WM_NCHITTEST)
         {
-            System.Drawing.Point lastQueried = new(-9999, -9999);
-            while (_uiaLoopRunning)
-            {
-                try
-                {
-                    if (!GetCursorPos(out var pos)) { Thread.Sleep(60); continue; }
-                    if (pos == lastQueried) { Thread.Sleep(40); continue; }
-                    lastQueried = pos;
-
-                    var el = System.Windows.Automation.AutomationElement.FromPoint(
-                        new Point(pos.X, pos.Y));
-                    var b = el.Current.BoundingRectangle;
-                    if (!b.IsEmpty && !double.IsInfinity(b.Width) && b.Width >= 4 && b.Height >= 4)
-                    {
-                        var phys = System.Drawing.Rectangle.Intersect(
-                            new System.Drawing.Rectangle((int)b.X, (int)b.Y, (int)b.Width, (int)b.Height),
-                            _virtualBounds);
-                        // 데스크톱 루트(가상 화면 전체)는 의미 없는 히트 — 이전 선택 유지
-                        bool desktopRoot = phys.Width >= _virtualBounds.Width * 98 / 100 &&
-                                           phys.Height >= _virtualBounds.Height * 98 / 100;
-                        if (phys.Width >= 4 && phys.Height >= 4 && !desktopRoot)
-                        {
-                            Dispatcher.BeginInvoke(() =>
-                            {
-                                if (_done) return;
-                                if (_hoverElementRect is { } prev && prev == phys) return;
-                                _hoverElementRect = phys;
-                                ShowSelection(PhysicalToLocal(phys));
-                            });
-                        }
-                    }
-                }
-                catch { /* UIA 일시 실패 — 다음 반복에서 재시도 */ }
-                Thread.Sleep(40);
-            }
-        })
-        { IsBackground = true, Name = "CaptureIt.UIA" };
-        thread.SetApartmentState(ApartmentState.MTA);
-        thread.Start();
+            handled = true;
+            return HTTRANSPARENT;   // 마우스 히트 테스트가 이 창을 지나쳐 아래 창을 보게 한다
+        }
+        return IntPtr.Zero;
     }
 
     private void LeaveElementMode()
     {
-        _uiaLoopRunning = false;
+        _hwndSource?.RemoveHook(HitTestPassThrough);
+        _hwndSource = null;
         if (_mouseHook != IntPtr.Zero)
         {
             UnhookWindowsHookEx(_mouseHook);
@@ -536,10 +248,25 @@ public partial class RegionSelectWindow : Window
     {
         if (nCode >= 0)
         {
-            // DOWN에서 예약하고 짝이 되는 UP까지 삼킨 뒤 실행 —
-            // 고아 UP이 아래 앱에 전달되어 컨텍스트 메뉴 등이 뜨는 것을 막는다.
             switch (wParam.ToInt32())
             {
+                case WM_MOUSEMOVE:
+                    // 훅 안에서는 최소 작업만: 갱신을 UI 큐에 1건만 예약한다.
+                    // (훅 처리가 느리면 Windows가 훅을 강제 해제해 버린다)
+                    if (!_elementUpdateQueued)
+                    {
+                        _elementUpdateQueued = true;
+                        var pt = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
+                        Dispatcher.BeginInvoke(() =>
+                        {
+                            _elementUpdateQueued = false;
+                            if (!_done) UpdateHoverElement(pt.X, pt.Y);
+                        });
+                    }
+                    break;   // 이동은 삼키지 않는다 (아래 앱 호버 효과 유지)
+
+                // DOWN에서 예약하고 짝이 되는 UP까지 삼킨 뒤 실행 —
+                // 고아 UP이 아래 앱에 전달되어 클릭이 실행되는 것을 막는다.
                 case WM_LBUTTONDOWN:
                     _leftPending = true;
                     return (IntPtr)1;
@@ -565,6 +292,20 @@ public partial class RegionSelectWindow : Window
             }
         }
         return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+    }
+
+    /// <summary>커서 아래 UI 요소를 Win32로 즉시 찾아 하이라이트한다 (UIA와 달리 지연 없음).</summary>
+    private void UpdateHoverElement(int x, int y)
+    {
+        var rect = CaptureService.GetElementRectAt(x, y);
+        if (rect.IsEmpty) return;
+
+        var phys = System.Drawing.Rectangle.Intersect(rect, _virtualBounds);
+        if (phys.Width < 4 || phys.Height < 4) return;
+        if (_hoverElementRect is { } prev && prev == phys) return;
+
+        _hoverElementRect = phys;
+        ShowSelection(PhysicalToLocal(phys));
     }
 
     // ── 창 캡처 모드 ───────────────────────────────────────────────────────

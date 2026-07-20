@@ -41,11 +41,15 @@
     <sys:String x:Key="Main.Fixed">Fixed size</sys:String>
     <sys:String x:Key="Main.Tip.Element">Capture a UI element (button, image, panel) with one click</sys:String>
     <sys:String x:Key="Main.Tip.Scroll">Capture scrolling content like a long web page, stitched together</sys:String>
-    <sys:String x:Key="Main.Tip.Fixed">Move a fixed-size frame and click to capture</sys:String>
+    <sys:String x:Key="Main.Tip.Fixed">Pin a capture frame on screen and re-capture as the content changes</sys:String>
     <sys:String x:Key="Overlay.ElementHint">Hover over any UI element and click to capture it  ·  Esc to cancel</sys:String>
     <sys:String x:Key="Overlay.FixedHint">Drag edges to resize, drag inside to move  ·  Enter or double-click to capture  ·  Esc to cancel</sys:String>
     <sys:String x:Key="Overlay.CaptureBtn">Capture (Enter)</sys:String>
-    <sys:String x:Key="Overlay.ScrollHint">Drag over the scrolling content (e.g. the body of a web page)  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Overlay.ScrollHint">Click the window to scroll-capture — it scrolls to the bottom automatically  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Feedback.Countdown">Capturing in {0}s  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Feedback.Processing">Processing capture…</sys:String>
+    <sys:String x:Key="Viewfinder.Capture">Capture</sys:String>
+    <sys:String x:Key="Viewfinder.Tip">The frame stays pinned on screen. Change what's underneath and press Capture (or Enter) to grab it again. Esc closes.</sys:String>
     <sys:String x:Key="Scroll.Progress">Scroll capturing… frame {0}  ·  Esc to stop</sys:String>
     <sys:String x:Key="Scroll.Failed">Scroll capture failed. Make sure you selected an area that actually scrolls.</sys:String>
 
@@ -67,7 +71,7 @@
     <!-- Editor -->
     <sys:String x:Key="Editor.Title">CaptureIt Editor</sys:String>
     <sys:String x:Key="Editor.NewCapture">New</sys:String>
-    <sys:String x:Key="Editor.Tip.NewCapture">Start a new region capture</sys:String>
+    <sys:String x:Key="Editor.Tip.NewCapture">Start a new capture using the last capture mode</sys:String>
     <sys:String x:Key="Editor.Select">Select</sys:String>
     <sys:String x:Key="Editor.Pen">Pen</sys:String>
     <sys:String x:Key="Editor.Highlight">Marker</sys:String>
@@ -93,6 +97,9 @@
     <sys:String x:Key="Editor.Tip.Eraser">Eraser — click a drawing to remove it</sys:String>
     <sys:String x:Key="Editor.Tip.Crop">Crop — keep only the dragged area</sys:String>
     <sys:String x:Key="Editor.Thickness">Size</sys:String>
+    <sys:String x:Key="Editor.Fill">Fill</sys:String>
+    <sys:String x:Key="Editor.FillNone">No fill (transparent)</sys:String>
+    <sys:String x:Key="Editor.Font">Font · size</sys:String>
     <sys:String x:Key="Editor.Thin">Thin</sys:String>
     <sys:String x:Key="Editor.Normal">Normal</sys:String>
     <sys:String x:Key="Editor.Thick">Thick</sys:String>

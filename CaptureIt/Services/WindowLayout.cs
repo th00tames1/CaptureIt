@@ -104,13 +104,11 @@ public static class WindowLayout
         ClampToWorkArea(editor);
     }
 
-    /// <summary>작업 영역을 벗어난 창을 안으로 끌어들인다 (모니터 구성 변경 대비).</summary>
+    /// <summary>가상 화면(모든 모니터)을 벗어난 창을 안으로 끌어들인다 (모니터 구성 변경 대비).</summary>
     public static void ClampToWorkArea(Window w)
     {
-        var work = SystemParameters.VirtualScreenLeft is var vl
-            ? new Rect(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
-                       SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight)
-            : SystemParameters.WorkArea;
+        var work = new Rect(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
+                            SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
 
         double width = w.ActualWidth > 0 ? w.ActualWidth : w.Width;
         double height = w.ActualHeight > 0 ? w.ActualHeight : w.Height;

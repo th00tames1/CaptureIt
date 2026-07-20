@@ -166,5 +166,26 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ── 투명(체크무늬) 브러시 — '채우기 없음' 스와치용 ── -->
+        <DrawingBrush x:Key="CheckerBrush" TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="White">
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="0,0,8,8"/>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#C9CED6">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <RectangleGeometry Rect="0,0,4,4"/>
+                                <RectangleGeometry Rect="4,4,4,4"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
     </Application.Resources>
 </Application>

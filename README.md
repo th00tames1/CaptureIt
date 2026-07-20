@@ -20,6 +20,13 @@ Made by **Heechan Jeong** · MIT License
 | **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
 | macOS (Intel) | [`CaptureIt-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-intel.zip) | Unzip → **right-click → Open** |
 
+> **Windows SmartScreen**: because CaptureIt is a new open-source app without a paid
+> code-signing certificate, Windows may show *"Windows protected your PC"* on first run.
+> Click **More info → Run anyway**. The full source code is in this repository, and every
+> release binary is built publicly by GitHub Actions from that source — you can audit the
+> [build workflow](.github/workflows/release.yml) yourself. The warning disappears
+> automatically as the download count builds reputation with Microsoft.
+>
 > **macOS**: the app is unsigned, so the first launch must be right-click → Open.
 > Grant *Screen Recording* permission when prompted.
 > **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` /
@@ -56,6 +63,8 @@ Made by **Heechan Jeong** · MIT License
 ### Editor
 
 - Pen, marker, line, arrow, box, circle, text, auto-numbering stamps ①②③
+- Box/circle fill & outline colors (incl. transparent), text font & size options
+- Pen/marker-shaped cursors that follow your current color
 - Pixelate (privacy mosaic), eraser, crop, clear-all
 - 8 colors, 4 stroke sizes, `Ctrl+wheel` zoom
 - Save (`Ctrl+S`), copy (`Ctrl+C`), save-as PNG/JPG/BMP

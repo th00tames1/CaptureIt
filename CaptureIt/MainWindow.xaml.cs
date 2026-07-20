@@ -13,10 +13,12 @@ public partial class MainWindow : Window
     private HotkeyManager? _hotkeys;
     private System.Windows.Forms.NotifyIcon? _tray;
     private EditorWindow? _editor;
+    private ViewfinderWindow? _viewfinder;
     private bool _reallyExit;
     private bool _capturing;               // 중복 캡처 방지
     private bool _wasVisibleBeforeCapture; // 캡처 후 창 복원용
     private bool _editorWasVisibleBeforeCapture;
+    private bool _viewfinderWasVisibleBeforeCapture;
     private bool _hotkeysRegistered;
     private bool _trayReady;
     private System.Drawing.Rectangle? _lastRegionRect;   // 같은 영역 다시 캡처
@@ -111,7 +113,7 @@ public partial class MainWindow : Window
         RepeatKeyLabel = TryRegister(VK_R, () => _ = StartRepeatCapture());
         ElementKeyLabel = TryRegister(VK_E, () => _ = StartElementCapture());
         ScrollKeyLabel = TryRegister(VK_S, () => _ = StartScrollCapture());
-        FixedKeyLabel = TryRegister(VK_D, () => _ = StartFixedCapture(S.FixedWidth, S.FixedHeight));
+        FixedKeyLabel = TryRegister(VK_D, ToggleViewfinder);
 
         RefreshHotkeyLabels();
     }
@@ -193,6 +195,7 @@ public partial class MainWindow : Window
     {
         _reallyExit = true;
         SavePosition();
+        _viewfinder?.Close();
         _tray?.Dispose();
         _hotkeys?.Dispose();
         Application.Current.Shutdown();
@@ -255,8 +258,7 @@ public partial class MainWindow : Window
     private async void ElementCapture_Click(object sender, RoutedEventArgs e) => await StartElementCapture();
     private async void ScrollCapture_Click(object sender, RoutedEventArgs e) => await StartScrollCapture();
 
-    private async void FixedCapture_Click(object sender, RoutedEventArgs e) =>
-        await StartFixedCapture(S.FixedWidth, S.FixedHeight);   // 크기는 오버레이에서 직접 조절
+    private void FixedCapture_Click(object sender, RoutedEventArgs e) => ToggleViewfinder();
 
     private void History_Click(object sender, RoutedEventArgs e) =>
         OpenEditor(HistoryService.Items.FirstOrDefault());
@@ -316,40 +318,60 @@ public partial class MainWindow : Window
     }
 
     // ── 캡처 플로우 ────────────────────────────────────────────────────────
-    /// <summary>캡처 전 준비: 창 숨김 + 지연 대기. 화면이 다시 그려질 시간을 준다.</summary>
+    /// <summary>캡처 전 준비: 카운트다운 표시 + 창 숨김. 화면이 다시 그려질 시간을 준다.</summary>
     private async Task<bool> PrepareCaptureAsync()
     {
         if (_capturing) return false;
         _capturing = true;
-        _wasVisibleBeforeCapture = IsVisible;
-        _editorWasVisibleBeforeCapture = _editor is { IsVisible: true };
-
-        if (S.CaptureDelaySeconds > 0)
-            await Task.Delay(TimeSpan.FromSeconds(S.CaptureDelaySeconds));
-
-        if (S.HideMainWindowOnCapture)
+        try
         {
-            bool hidAny = false;
-            if (IsVisible) { Hide(); hidAny = true; }
-            if (_editor is { IsVisible: true }) { _editor.Hide(); hidAny = true; }
-            if (hidAny) await Task.Delay(220);   // 창 사라짐 애니메이션 대기
+            if (S.CaptureDelaySeconds > 0 &&
+                !await FeedbackService.CountdownAsync(S.CaptureDelaySeconds))
+            {
+                _capturing = false;   // Esc로 카운트다운 취소
+                return false;
+            }
+
+            // 가시성 스냅샷은 카운트다운 이후에 찍는다 — 지연 중 사용자가 창을
+            // 열고 닫아도 복원이 어긋나지 않게.
+            _wasVisibleBeforeCapture = IsVisible;
+            _editorWasVisibleBeforeCapture = _editor is { IsVisible: true };
+            _viewfinderWasVisibleBeforeCapture = _viewfinder is { IsVisible: true };
+
+            if (S.HideMainWindowOnCapture)
+            {
+                bool hidAny = false;
+                if (IsVisible) { Hide(); hidAny = true; }
+                if (_editor is { IsVisible: true }) { _editor.Hide(); hidAny = true; }
+                if (_viewfinder is { IsVisible: true }) { _viewfinder.Hide(); hidAny = true; }
+                if (hidAny) await Task.Delay(220);   // 창 사라짐 애니메이션 대기
+            }
+            return true;
         }
-        return true;
+        catch
+        {
+            _capturing = false;   // 준비 중 예외로 캡처가 영구 잠기지 않게
+            return false;
+        }
     }
 
-    private void FinishCapture()
+    /// <summary>캡처 종료 정리. canceled=true(Esc 등)면 메인 창을 앞으로 가져온다.</summary>
+    private void FinishCapture(bool canceled = false)
     {
         _capturing = false;
         // 캡처 전에 보이던 창은 복원한다 (취소해도 창이 사라진 것처럼 보이지 않게).
         if (_editorWasVisibleBeforeCapture && _editor is { IsVisible: false }) _editor.Show();
         if (_wasVisibleBeforeCapture && !IsVisible) Show();
+        if (_viewfinderWasVisibleBeforeCapture && _viewfinder is { IsVisible: false }) _viewfinder.Show();
         if (IsVisible && _editor is { IsVisible: true })
             WindowLayout.StackMainAndEditor(this, _editor);
+        if (canceled) ShowFromTray();   // Esc 취소 → 메인 화면 활성화
     }
 
     public async Task StartRegionCapture()
     {
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
             using var shot = CaptureService.CaptureVirtualScreen();
@@ -359,14 +381,33 @@ public partial class MainWindow : Window
             bool? ok = overlay.ShowDialog();
             if (ok == true && overlay.SelectedPixelRect is { } rect)
             {
+                S.LastCaptureMode = "Region";
                 var v = System.Windows.Forms.SystemInformation.VirtualScreen;
                 _lastRegionRect = new System.Drawing.Rectangle(v.X + rect.X, v.Y + rect.Y, rect.Width, rect.Height);
                 var cropped = new CroppedBitmap(frozen, rect);
                 cropped.Freeze();
                 await HandleCaptured(cropped);
             }
+            else canceled = true;
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
+    }
+
+    /// <summary>편집기 '새 캡처' 버튼: 마지막에 사용한 캡처 모드를 반복한다.</summary>
+    public Task StartLastCapture()
+    {
+        switch (S.LastCaptureMode)
+        {
+            case "Window": return StartWindowCapture();
+            case "Full": return StartFullCapture();
+            case "Element": return StartElementCapture();
+            case "Scroll": return StartScrollCapture();
+            case "Fixed":
+                if (_viewfinder is not { IsVisible: true }) ToggleViewfinder();
+                else _viewfinder.Activate();
+                return Task.CompletedTask;
+            default: return StartRegionCapture();
+        }
     }
 
     /// <summary>직전 영역을 같은 자리에서 다시 캡처한다 (오버레이 없이 즉시).</summary>
@@ -393,6 +434,7 @@ public partial class MainWindow : Window
         {
             using var shot = CaptureService.CaptureRect(rect);
             var img = CaptureService.ToBitmapSource(shot);
+            FeedbackService.Flash();
             await HandleCaptured(img);
         }
         finally { FinishCapture(); }
@@ -402,6 +444,7 @@ public partial class MainWindow : Window
     public async Task StartElementCapture()
     {
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
             using var shot = CaptureService.CaptureVirtualScreen();
@@ -411,75 +454,127 @@ public partial class MainWindow : Window
             bool? ok = overlay.ShowDialog();
             if (ok == true && overlay.SelectedPixelRect is { } rect)
             {
+                S.LastCaptureMode = "Element";
                 var cropped = new CroppedBitmap(frozen, rect);
                 cropped.Freeze();
                 await HandleCaptured(cropped);
             }
+            else canceled = true;
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
     }
 
-    /// <summary>고정 크기: 지정 크기 틀을 움직여 클릭한 곳을 캡처.</summary>
-    public async Task StartFixedCapture(int width, int height)
+    /// <summary>고정 크기: 라이브 뷰파인더 틀을 토글한다 (화면 정지 없음 — 즉시 표시).</summary>
+    public void ToggleViewfinder()
     {
-        if (!await PrepareCaptureAsync()) return;
+        if (_viewfinder is { IsVisible: true })
+        {
+            _viewfinder.Close();
+            _viewfinder = null;
+            return;
+        }
+        S.LastCaptureMode = "Fixed";
+        _viewfinder = new ViewfinderWindow(this);
+        _viewfinder.Closed += (_, _) => _viewfinder = null;
+        _viewfinder.Show();
+    }
+
+    /// <summary>뷰파인더의 캡처 요청: 틀 안쪽 영역을 즉시 캡처한다 (틀은 유지).</summary>
+    public async Task CaptureViewfinderRect(System.Drawing.Rectangle rect)
+    {
+        if (_capturing) return;
+        _capturing = true;
+        bool hidMain = false, hidEditor = false;
         try
         {
-            using var shot = CaptureService.CaptureVirtualScreen();
-            var frozen = CaptureService.ToBitmapSource(shot);
+            var v = System.Windows.Forms.SystemInformation.VirtualScreen;
+            rect = System.Drawing.Rectangle.Intersect(rect, v);
+            if (rect.Width < 4 || rect.Height < 4) return;
 
-            var overlay = new RegionSelectWindow(frozen, RegionSelectWindow.SelectMode.Fixed,
-                                                 fixedW: width, fixedH: height);
-            bool? ok = overlay.ShowDialog();
-            if (ok == true && overlay.SelectedPixelRect is { } rect)
-            {
-                // 오버레이에서 조절한 크기를 다음 기본값으로 기억
-                S.FixedWidth = rect.Width;
-                S.FixedHeight = rect.Height;
-                S.Save();
+            // 메인/편집기가 캡처 영역을 가리고 있으면 잠깐만 숨긴다
+            hidMain = IsVisible && WindowIntersects(this, rect);
+            hidEditor = _editor is { IsVisible: true } && WindowIntersects(_editor, rect);
+            if (hidMain) Hide();
+            if (hidEditor) _editor!.Hide();
+            if (hidMain || hidEditor) await Task.Delay(200);
 
-                var cropped = new CroppedBitmap(frozen, rect);
-                cropped.Freeze();
-                await HandleCaptured(cropped);
-            }
+            using var shot = CaptureService.CaptureRect(rect);
+            var img = CaptureService.ToBitmapSource(shot);
+            FeedbackService.Flash();
+
+            if (hidEditor) { _editor!.Show(); hidEditor = false; }
+            if (hidMain) { Show(); hidMain = false; }
+
+            await HandleCaptured(img);
         }
-        finally { FinishCapture(); }
+        finally
+        {
+            // 예외가 나도 숨긴 창은 반드시 복원한다
+            if (hidEditor) _editor?.Show();
+            if (hidMain) Show();
+            _capturing = false;
+        }
     }
 
-    /// <summary>스크롤 캡처: 영역을 드래그로 고른 뒤 자동 스크롤하며 이어붙인다.</summary>
+    /// <summary>창(DIU)이 물리 픽셀 영역과 겹치는지.</summary>
+    private static bool WindowIntersects(Window w, System.Drawing.Rectangle physRect)
+    {
+        double scale = System.Windows.Media.VisualTreeHelper.GetDpi(w).DpiScaleX;
+        var r = new System.Drawing.Rectangle(
+            (int)(w.Left * scale), (int)(w.Top * scale),
+            (int)(w.ActualWidth * scale), (int)(w.ActualHeight * scale));
+        return r.IntersectsWith(physRect);
+    }
+
+    /// <summary>스크롤 캡처: 창을 클릭하면 자동으로 끝까지 스크롤하며 이어붙인다.</summary>
     public async Task StartScrollCapture()
     {
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
-            Int32Rect? sel = null;
+            CaptureService.WindowInfo? target = null;
             {
                 using var shot = CaptureService.CaptureVirtualScreen();
                 var frozen = CaptureService.ToBitmapSource(shot);
-                var overlay = new RegionSelectWindow(frozen, RegionSelectWindow.SelectMode.ScrollRegion);
-                if (overlay.ShowDialog() == true) sel = overlay.SelectedPixelRect;
+                var exclude = new List<IntPtr> { new WindowInteropHelper(this).Handle };
+                if (_editor != null) exclude.Add(new WindowInteropHelper(_editor).Handle);
+                if (_viewfinder != null) exclude.Add(new WindowInteropHelper(_viewfinder).Handle);
+                var windows = CaptureService.GetVisibleWindows(exclude.ToArray());
+
+                var overlay = new RegionSelectWindow(frozen, RegionSelectWindow.SelectMode.ScrollWindow, windows);
+                if (overlay.ShowDialog() == true) target = overlay.SelectedWindow;
             }
-            if (sel is not { } rect) return;
+            if (target == null) { canceled = true; return; }
 
+            S.LastCaptureMode = "Scroll";
+
+            // 대상 창을 앞으로 가져와 가려진 부분 없이 캡처되게 한다
+            CaptureService.BringToForeground(target.Handle);
+            await Task.Delay(350);
+
+            // 제목줄·테두리를 뺀 클라이언트 영역만 캡처
             var v = System.Windows.Forms.SystemInformation.VirtualScreen;
-            var abs = new System.Drawing.Rectangle(v.X + rect.X, v.Y + rect.Y, rect.Width, rect.Height);
+            var area = CaptureService.GetClientBounds(target.Handle);
+            if (area.Width < 50 || area.Height < 80) area = CaptureService.GetWindowBounds(target.Handle);
+            area = System.Drawing.Rectangle.Intersect(area, v);
+            if (area.Width < 50 || area.Height < 80) { Notify(Loc.Get("Scroll.Failed")); return; }
 
-            var (toast, toastText) = CreateScrollToast(abs);
+            var (toast, toastText) = CreateScrollToast(area);
             toast.Show();
             // 토스트가 캡처 프레임에 찍히지 않도록 화면 캡처에서 제외 (Win10 2004+)
             try { SetWindowDisplayAffinity(new WindowInteropHelper(toast).Handle, 0x11 /* WDA_EXCLUDEFROMCAPTURE */); }
             catch { }
             try
             {
-                await Task.Delay(300);   // 오버레이가 화면에서 사라질 시간
-                var result = await ScrollCaptureService.RunAsync(abs,
+                var result = await ScrollCaptureService.RunAsync(area,
                     n => Dispatcher.Invoke(() => toastText.Text = Loc.F("Scroll.Progress", n)));
                 if (result != null) await HandleCaptured(result);
                 else Notify(Loc.Get("Scroll.Failed"));
             }
             finally { toast.Close(); }
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
     }
 
     /// <summary>스크롤 캡처 진행 표시 토스트 — 캡처 영역과 겹치지 않는 모서리에 둔다.</summary>
@@ -535,6 +630,7 @@ public partial class MainWindow : Window
     public async Task StartWindowCapture()
     {
         if (!await PrepareCaptureAsync()) return;
+        bool canceled = false;
         try
         {
             using var shot = CaptureService.CaptureVirtualScreen();
@@ -542,18 +638,21 @@ public partial class MainWindow : Window
 
             var exclude = new List<IntPtr> { new WindowInteropHelper(this).Handle };
             if (_editor != null) exclude.Add(new WindowInteropHelper(_editor).Handle);
+            if (_viewfinder != null) exclude.Add(new WindowInteropHelper(_viewfinder).Handle);
             var windows = CaptureService.GetVisibleWindows(exclude.ToArray());
 
             var overlay = new RegionSelectWindow(frozen, RegionSelectWindow.SelectMode.Window, windows);
             bool? ok = overlay.ShowDialog();
             if (ok == true && overlay.SelectedPixelRect is { } rect)
             {
+                S.LastCaptureMode = "Window";
                 var cropped = new CroppedBitmap(frozen, rect);
                 cropped.Freeze();
                 await HandleCaptured(cropped);
             }
+            else canceled = true;
         }
-        finally { FinishCapture(); }
+        finally { FinishCapture(canceled); }
     }
 
     public async Task StartFullCapture()
@@ -563,6 +662,8 @@ public partial class MainWindow : Window
         {
             using var shot = CaptureService.CaptureVirtualScreen();
             var frozen = CaptureService.ToBitmapSource(shot);
+            S.LastCaptureMode = "Full";
+            FeedbackService.Flash();   // 오버레이가 없는 모드는 플래시로 캡처 순간을 알린다
             await HandleCaptured(frozen);
         }
         finally { FinishCapture(); }
@@ -575,7 +676,8 @@ public partial class MainWindow : Window
 
         // 모든 캡처는 목록에 쌓인다 — 언제든 다시 열어 편집 가능 (알캡처 벤치마크)
         // 스크롤 캡처처럼 큰 이미지도 UI가 멈추지 않게 인코딩은 백그라운드에서.
-        var item = await HistoryService.AddAsync(image);
+        // 250ms 이상 걸리면 "처리 중…" 토스트로 진행 상황을 보여준다.
+        var item = await FeedbackService.WithBusyToastAsync(HistoryService.AddAsync(image));
 
         // 클립보드에는 DIB + PNG + 파일까지 함께 올려 어디든 바로 붙여넣게 한다
         bool copied = false;
