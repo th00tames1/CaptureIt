@@ -1,0 +1,144 @@
+﻿<Window x:Class="CaptureIt.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{DynamicResource Settings.Title}" Height="640" Width="470"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource WindowBg}"
+        FontFamily="Malgun Gothic" UseLayoutRounding="True">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,6,0">
+
+                <!-- 일반 -->
+                <TextBlock Text="{DynamicResource Settings.General}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,16"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Settings.Language}" FontSize="12"
+                                       VerticalAlignment="Center" Foreground="{StaticResource TextSub}"/>
+                            <ComboBox x:Name="CmbLanguage" Grid.Column="1" Width="150" HorizontalAlignment="Left"
+                                      Margin="12,0,0,0" FontSize="12">
+                                <ComboBoxItem Content="한국어"/>
+                                <ComboBoxItem Content="English"/>
+                            </ComboBox>
+                        </Grid>
+                        <CheckBox x:Name="ChkStartup" Content="{DynamicResource Settings.RunAtStartup}" FontSize="12" Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 저장 위치 -->
+                <TextBlock Text="{DynamicResource Settings.SaveLocation}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,16"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtFolder" Grid.Column="0" Padding="6,5" VerticalContentAlignment="Center"/>
+                            <Button Grid.Column="1" Style="{StaticResource GhostButton}"
+                                    Margin="8,0,0,0" Click="Browse_Click">
+                                <TextBlock Text="{DynamicResource Settings.Browse}"/>
+                            </Button>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Text="{DynamicResource Settings.FilePrefix}" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{StaticResource TextSub}"/>
+                            <TextBox x:Name="TxtPrefix" Width="120" Margin="8,0,0,0" Padding="5,4"/>
+                            <TextBlock Text="{DynamicResource Settings.PrefixExample}" FontSize="11" VerticalAlignment="Center"
+                                       Foreground="#A5ADBB" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 파일 형식 -->
+                <TextBlock Text="{DynamicResource Settings.Format}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,16"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="FmtPng" Content="{DynamicResource Settings.FmtPng}" GroupName="Fmt" IsChecked="True" FontSize="12"/>
+                        <RadioButton x:Name="FmtJpg" Content="{DynamicResource Settings.FmtJpg}" GroupName="Fmt" Margin="16,0,0,0" FontSize="12"/>
+                        <RadioButton x:Name="FmtBmp" Content="BMP" GroupName="Fmt" Margin="16,0,0,0" FontSize="12"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 캡처 후 동작 -->
+                <TextBlock Text="{DynamicResource Settings.AfterCapture}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,16"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel>
+                        <RadioButton x:Name="ActEditor" GroupName="Act" IsChecked="True" FontSize="12"
+                                     Content="{DynamicResource Settings.ActEditor}"/>
+                        <RadioButton x:Name="ActSave" GroupName="Act" Margin="0,8,0,0" FontSize="12"
+                                     Content="{DynamicResource Settings.ActSave}"/>
+                        <RadioButton x:Name="ActCopy" GroupName="Act" Margin="0,8,0,0" FontSize="12"
+                                     Content="{DynamicResource Settings.ActCopy}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 기타 -->
+                <TextBlock Text="{DynamicResource Settings.Etc}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,16"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel>
+                        <CheckBox x:Name="ChkClipboard" Content="{DynamicResource Settings.AlwaysClipboard}" FontSize="12"/>
+                        <CheckBox x:Name="ChkHide" Content="{DynamicResource Settings.HideOnCapture}" FontSize="12" Margin="0,8,0,0"/>
+                        <CheckBox x:Name="ChkSound" Content="{DynamicResource Settings.Sound}" FontSize="12" Margin="0,8,0,0"/>
+                        <CheckBox x:Name="ChkTray" Content="{DynamicResource Settings.TrayIcon}" FontSize="12" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 단축키 안내 -->
+                <TextBlock Text="{DynamicResource Settings.Hotkeys}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,4"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                            <RowDefinition/><RowDefinition/><RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="KeyRegion" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRegion}" FontSize="12" Margin="16,0,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" x:Name="KeyElement" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{DynamicResource Settings.HotkeyElement}" FontSize="12" Margin="16,6,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" x:Name="KeyWindow" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{DynamicResource Settings.HotkeyWindow}" FontSize="12" Margin="16,6,0,0"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" x:Name="KeyFull" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFull}" FontSize="12" Margin="16,6,0,0"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" x:Name="KeyScroll" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{DynamicResource Settings.HotkeyScroll}" FontSize="12" Margin="16,6,0,0"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" x:Name="KeyFixed" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFixed}" FontSize="12" Margin="16,6,0,0"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" x:Name="KeyRepeat" Text="—" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRepeat}" FontSize="12" Margin="16,6,0,0"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 하단 버튼 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Style="{StaticResource GhostButton}" Width="88" Click="Cancel_Click">
+                <TextBlock Text="{DynamicResource Settings.Cancel}"/>
+            </Button>
+            <Button Style="{StaticResource AccentButton}" Width="88" Margin="10,0,0,0" Click="Save_Click">
+                <TextBlock Text="{DynamicResource Settings.Save}"/>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

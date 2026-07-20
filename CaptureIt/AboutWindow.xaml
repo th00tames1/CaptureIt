@@ -1,0 +1,53 @@
+﻿<Window x:Class="CaptureIt.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{DynamicResource About.Title}" Height="372" Width="420"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        FontFamily="Malgun Gothic" UseLayoutRounding="True"
+        KeyDown="Window_KeyDown">
+    <Border Background="{StaticResource CardBg}" CornerRadius="14"
+            BorderBrush="{StaticResource BorderSoft}" BorderThickness="1"
+            MouseLeftButtonDown="Drag_MouseDown">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="2" Opacity="0.2" Color="#1F2937"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" VerticalAlignment="Center" Margin="30,26,30,0">
+                <!-- 로고 -->
+                <Grid Width="64" Height="64" HorizontalAlignment="Center">
+                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16"/>
+                    <Ellipse Fill="White" Width="30" Height="30"/>
+                    <Ellipse Fill="{StaticResource PrimaryBrush}" Width="16" Height="16"/>
+                    <Border Background="#FFD84D" CornerRadius="3" Width="10" Height="6"
+                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,11,0"/>
+                </Grid>
+
+                <TextBlock Text="{DynamicResource App.Name}" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource TextMain}" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                <TextBlock x:Name="TxtVersion" Text="Version 2.0.0" FontSize="12"
+                           Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+
+                <TextBlock Text="{DynamicResource About.Desc}" FontSize="12" TextAlignment="Center"
+                           Foreground="{StaticResource TextSub}" Margin="0,14,0,0" LineHeight="19" TextWrapping="Wrap"/>
+
+                <Border Height="1" Background="{StaticResource BorderSoft}" Margin="20,16"/>
+
+                <TextBlock Text="{DynamicResource About.Author}" FontSize="13" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextMain}" HorizontalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource About.Copyright}" FontSize="11"
+                           Foreground="#A5ADBB" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Row="1" Style="{StaticResource AccentButton}" Width="110" Margin="0,16,0,20"
+                    HorizontalAlignment="Center" Click="Close_Click">
+                <TextBlock Text="{DynamicResource About.Close}"/>
+            </Button>
+        </Grid>
+    </Border>
+</Window>
