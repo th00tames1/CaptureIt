@@ -150,3 +150,33 @@ jobs:
 
             **macOS**: unsigned app — first launch requires **right-click → Open**, and grant *Screen Recording* permission when prompted.
             **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` / ImageMagick; clipboard needs `wl-clipboard` or `xclip`.
+
+  # ── README 다운로드 표의 버전·링크를 새 릴리스로 갱신 ────────────────────
+  update-readme:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Point download links at this release
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          sed -i -E \
+            -e "s/CaptureIt-Setup-[0-9.]+-win-x64\.exe/CaptureIt-Setup-$ver-win-x64.exe/g" \
+            -e "s/CaptureIt-Portable-[0-9.]+-win-x64\.zip/CaptureIt-Portable-$ver-win-x64.zip/g" \
+            -e "s/CaptureIt-[0-9.]+-linux-x64\.tar\.gz/CaptureIt-$ver-linux-x64.tar.gz/g" \
+            -e "s/CaptureIt-[0-9.]+-macos-apple-silicon\.zip/CaptureIt-$ver-macos-apple-silicon.zip/g" \
+            -e "s/CaptureIt-[0-9.]+-macos-intel\.zip/CaptureIt-$ver-macos-intel.zip/g" \
+            -e "s|releases/download/v[0-9.]+/|releases/download/v$ver/|g" \
+            README.md README.ko.md
+          if git diff --quiet; then
+            echo "README already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md README.ko.md
+          git commit -m "docs: point download links at v$ver"
+          git push

@@ -14,11 +14,11 @@ Made by **Heechan Jeong** · MIT License
 
 | OS | 파일 | 설치 방법 |
 |---|---|---|
-| **Windows 10/11** | [`CaptureIt-Setup-<버전>-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest) | 설치 관리자를 실행합니다. 관리자 권한이 필요하지 않습니다. |
-| Windows (무설치) | [`CaptureIt-Portable-<버전>-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | 압축 풀고 exe 실행 |
-| **Linux x64** | [`CaptureIt-<버전>-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest) | 압축 해제 후 `./install.sh` |
-| **macOS (Apple Silicon)** | [`CaptureIt-<버전>-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | 압축 해제 → **우클릭 → 열기** |
-| macOS (Intel) | [`CaptureIt-<버전>-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | 압축 해제 → **우클릭 → 열기** |
+| **Windows 10/11** | [`CaptureIt-Setup-2.1.6-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.6/CaptureIt-Setup-2.1.6-win-x64.exe) | 설치 관리자를 실행합니다. 관리자 권한이 필요하지 않습니다. |
+| Windows (무설치) | [`CaptureIt-Portable-2.1.6-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.6/CaptureIt-Portable-2.1.6-win-x64.zip) | 압축 풀고 exe 실행 |
+| **Linux x64** | [`CaptureIt-2.1.6-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.6/CaptureIt-2.1.6-linux-x64.tar.gz) | 압축 해제 후 `./install.sh` |
+| **macOS (Apple Silicon)** | [`CaptureIt-2.1.6-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.6/CaptureIt-2.1.6-macos-apple-silicon.zip) | 압축 해제 → **우클릭 → 열기** |
+| macOS (Intel) | [`CaptureIt-2.1.6-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.6/CaptureIt-2.1.6-macos-intel.zip) | 압축 해제 → **우클릭 → 열기** |
 
 > **Windows SmartScreen**: CaptureIt은 유료 코드 서명 인증서가 없는 신생 오픈소스 앱이라
 > 처음 실행할 때 *"Windows에서 PC를 보호했습니다"* 경고가 뜰 수 있습니다.
