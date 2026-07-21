@@ -33,6 +33,9 @@ public partial class MainWindow : Window
         if (History.Items.Count > 0) HistoryList.SelectedIndex = 0;
         Status(Loc.Get("Status.Ready"));
 
+        // 생성자 시점엔 레이아웃 전이라 Scroller 크기가 0 — 첫 표시 후 맞춤 배율을 다시 계산
+        Loaded += (_, _) => FitZoom();
+
         KeyDown += (_, e) =>
         {
             if (e.KeyModifiers == KeyModifiers.Control)
@@ -47,19 +50,19 @@ public partial class MainWindow : Window
     private void ApplyTexts()
     {
         Title = Loc.Get("App.Title");
-        BtnRegion.Content = "⬚  " + Loc.Get("Btn.Region");
-        BtnFull.Content = "🖵  " + Loc.Get("Btn.Full");
-        ToolSelect.Content = Loc.Get("Tool.Select");
-        ToolPen.Content = Loc.Get("Tool.Pen");
-        ToolBox.Content = Loc.Get("Tool.Box");
-        ToolArrow.Content = Loc.Get("Tool.Arrow");
-        ToolCrop.Content = Loc.Get("Tool.Crop");
-        BtnUndo.Content = "↩ " + Loc.Get("Btn.Undo");
-        BtnCopy.Content = Loc.Get("Btn.Copy");
-        BtnSave.Content = Loc.Get("Btn.Save");
-        BtnDelete.Content = Loc.Get("Btn.Delete");
-        BtnFolder.Content = Loc.Get("Btn.Folder");
-        BtnLang.Content = Loc.Get("Btn.Lang");
+        BtnRegionText.Text = Loc.Get("Btn.Region");
+        BtnFullText.Text = Loc.Get("Btn.Full");
+        ToolSelectText.Text = Loc.Get("Tool.Select");
+        ToolPenText.Text = Loc.Get("Tool.Pen");
+        ToolBoxText.Text = Loc.Get("Tool.Box");
+        ToolArrowText.Text = Loc.Get("Tool.Arrow");
+        ToolCropText.Text = Loc.Get("Tool.Crop");
+        BtnUndoText.Text = Loc.Get("Btn.Undo");
+        BtnCopyText.Text = Loc.Get("Btn.Copy");
+        BtnSaveText.Text = Loc.Get("Btn.Save");
+        BtnDeleteText.Text = Loc.Get("Btn.Delete");
+        BtnFolderText.Text = Loc.Get("Btn.Folder");
+        BtnLangText.Text = Loc.Get("Btn.Lang");
         LblHistory.Text = Loc.Get("History.Title");
         TxtAbout.Text = Loc.Get("About");
     }

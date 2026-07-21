@@ -1,9 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=CaptureIt
-Comment=Easy screen capture with annotation editor
-Comment[ko]=쉬운 화면 캡처와 주석 편집기
+Comment=Screen capture and annotation tool
+Comment[ko]=화면 캡처 및 주석 도구
 Exec=captureit
+Icon=captureit
 Terminal=false
 Categories=Utility;Graphics;
 Keywords=screenshot;capture;screen;

@@ -7,12 +7,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>CaptureIt</AssemblyName>
     <Product>CaptureIt (Cross-platform edition)</Product>
-    <Version>2.1.0</Version>
+    <Version>2.1.8</Version>
     <Copyright>© 2026 Heechan Jeong</Copyright>
     <Authors>Heechan Jeong</Authors>
     <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
     <ApplicationIcon>../CaptureIt/app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 창 타이틀바·작업 표시줄 아이콘 (Windows 에디션과 동일한 app.ico) -->
+    <AvaloniaResource Include="Assets\app.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.*" />

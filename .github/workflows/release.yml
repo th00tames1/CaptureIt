@@ -69,7 +69,7 @@ jobs:
           ver="${GITHUB_REF_NAME#v}"
           mkdir -p stage/CaptureIt
           cp publish/linux/CaptureIt stage/CaptureIt/
-          cp packaging/linux/captureit.desktop packaging/linux/install.sh stage/CaptureIt/
+          cp packaging/linux/captureit.desktop packaging/linux/install.sh packaging/linux/captureit.png stage/CaptureIt/
           chmod +x stage/CaptureIt/CaptureIt stage/CaptureIt/install.sh
           tar -czf "CaptureIt-$ver-linux-x64.tar.gz" -C stage CaptureIt
 
@@ -104,9 +104,10 @@ jobs:
       - name: Make .app bundle
         run: |
           ver="${GITHUB_REF_NAME#v}"
-          mkdir -p "CaptureIt.app/Contents/MacOS"
+          mkdir -p "CaptureIt.app/Contents/MacOS" "CaptureIt.app/Contents/Resources"
           cp publish/mac/CaptureIt "CaptureIt.app/Contents/MacOS/CaptureIt"
           chmod +x "CaptureIt.app/Contents/MacOS/CaptureIt"
+          cp packaging/macos/AppIcon.icns "CaptureIt.app/Contents/Resources/AppIcon.icns"
           sed "s/APP_VERSION/$ver/g" packaging/macos/Info.plist > "CaptureIt.app/Contents/Info.plist"
           ditto -c -k --keepParent CaptureIt.app "CaptureIt-$ver-macos-${{ matrix.suffix }}.zip"
 

@@ -30,6 +30,14 @@ public partial class OverlayWindow : Window
         if (frozen != null) Frozen.Source = frozen;
         HintText.Text = Loc.Get("Overlay.Hint");
 
+        // 정지 이미지는 '주 모니터' 캡처이므로 오버레이도 반드시 주 모니터에 전체 화면으로 연다.
+        // (기본 FullScreen은 메인 창이 있는 모니터에 열려, 멀티 모니터에서 어긋났다)
+        Opened += (_, _) =>
+        {
+            if (Screens.Primary is { } primary) Position = primary.Bounds.Position;
+            WindowState = WindowState.FullScreen;
+        };
+
         Loaded += (_, _) =>
         {
             Canvas.SetLeft(HintBar, (Bounds.Width - HintBar.Bounds.Width) / 2);

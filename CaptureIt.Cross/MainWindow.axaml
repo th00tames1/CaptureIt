@@ -2,57 +2,229 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="using:CaptureIt.Cross"
         x:Class="CaptureIt.Cross.MainWindow"
-        Title="CaptureIt" Width="1120" Height="700"
-        MinWidth="860" MinHeight="540"
+        Title="CaptureIt" Width="1280" Height="720"
+        MinWidth="1120" MinHeight="540"
         Background="#F7F9FC"
+        Icon="/Assets/app.ico"
         WindowStartupLocation="CenterScreen">
+
+    <Window.Styles>
+        <!-- Windows 에디션과 동일한 시각 언어: 파란 강조·흰 고스트·파랑 체크 토글 -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#2D7DF6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,7"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1E5FCC"/>
+        </Style>
+        <Style Selector="Button.success">
+            <Setter Property="Background" Value="#22C55E"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,7"/>
+        </Style>
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="BorderBrush" Value="#E5E9F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="11,7"/>
+        </Style>
+        <Style Selector="ToggleButton.tool">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+        <Style Selector="ToggleButton.tool:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E8F1FE"/>
+        </Style>
+        <Style Selector="ToggleButton.tool:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2D7DF6"/>
+        </Style>
+        <Style Selector="ToggleButton.tool:checked">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <!-- 목록 선택 하이라이트: 시스템 강조색 대신 제품 팔레트 -->
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#E8F1FE"/>
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#F3F6FB"/>
+        </Style>
+    </Window.Styles>
 
     <Grid RowDefinitions="Auto,*,28">
 
         <!-- ══ 툴바 ══ -->
         <Border Grid.Row="0" Background="White" BorderBrush="#E5E9F0" BorderThickness="0,0,0,1" Padding="10,8">
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
-                    <Button x:Name="BtnRegion" Click="Region_Click" Background="#2D7DF6" Foreground="White"
-                            Padding="14,7" CornerRadius="8" FontWeight="SemiBold"/>
-                    <Button x:Name="BtnFull" Click="Full_Click" Background="#2D7DF6" Foreground="White"
-                            Padding="14,7" CornerRadius="8" FontWeight="SemiBold"/>
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+
+                <!-- 로고 (앱 아이콘과 동일한 카메라) + 제품명 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center" Margin="2,0,12,0">
+                    <Border Width="22" Height="22" CornerRadius="5">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="60%,100%">
+                                <GradientStop Color="#3F8CF8" Offset="0"/>
+                                <GradientStop Color="#1E5FCC" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Canvas>
+                            <Border Canvas.Left="8.1" Canvas.Top="4.9" Width="5.8" Height="3.6"
+                                    Background="White" CornerRadius="1.2,1.2,0,0"/>
+                            <Border Canvas.Left="3.5" Canvas.Top="7.2" Width="15" Height="10"
+                                    Background="White" CornerRadius="2.6"/>
+                            <Ellipse Canvas.Left="7.2" Canvas.Top="8.9" Width="6.6" Height="6.6" Fill="#1B57C9"/>
+                            <Ellipse Canvas.Left="8.3" Canvas.Top="9.9" Width="2.5" Height="2.5" Fill="#7FB0F7"/>
+                            <Ellipse Canvas.Left="14.9" Canvas.Top="8.9" Width="2" Height="2" Fill="#FACC15"/>
+                        </Canvas>
+                    </Border>
+                    <TextBlock Text="CaptureIt" FontWeight="Bold" FontSize="14"
+                               Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button x:Name="BtnRegion" Click="Region_Click" Classes="primary">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <Canvas Width="16" Height="16" VerticalAlignment="Center">
+                                <Rectangle Canvas.Left="1" Canvas.Top="2.5" Width="14" Height="11" RadiusX="2" RadiusY="2"
+                                           Stroke="White" StrokeThickness="1.6" StrokeDashArray="2,1.4"/>
+                                <Path Data="M8,5.5 L8,10.5 M5.5,8 L10.5,8" Stroke="White" StrokeThickness="1.6"/>
+                            </Canvas>
+                            <TextBlock x:Name="BtnRegionText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnFull" Click="Full_Click" Classes="primary">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <Canvas Width="16" Height="16" VerticalAlignment="Center">
+                                <Rectangle Canvas.Left="1" Canvas.Top="2" Width="14" Height="9.5" RadiusX="2" RadiusY="2"
+                                           Stroke="White" StrokeThickness="1.6"/>
+                                <Path Data="M8,11.5 L8,13.5 M5,14 L11,14" Stroke="White" StrokeThickness="1.6"/>
+                            </Canvas>
+                            <TextBlock x:Name="BtnFullText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <Border Width="1" Height="30" Background="#E5E9F0" Margin="6,0"/>
 
-                    <ToggleButton x:Name="ToolSelect" Click="Tool_Click" Padding="10,6" CornerRadius="8" IsChecked="True"/>
-                    <ToggleButton x:Name="ToolPen" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
-                    <ToggleButton x:Name="ToolBox" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
-                    <ToggleButton x:Name="ToolArrow" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
-                    <ToggleButton x:Name="ToolCrop" Click="Tool_Click" Padding="10,6" CornerRadius="8"/>
+                    <ToggleButton x:Name="ToolSelect" Click="Tool_Click" Classes="tool" IsChecked="True">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M4,1 L4,15 L8,11 L11,17 L13,16 L10,10 L15,10 Z"
+                                  Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.4"
+                                  Width="13" Height="14" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToolSelectText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton x:Name="ToolPen" Click="Tool_Click" Classes="tool">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M2,16 L3,12 L12,3 C13,2 15,2 16,3 C17,4 17,6 16,7 L7,16 L2,17 Z M11,4 L15,8"
+                                  Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.4"
+                                  Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToolPenText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton x:Name="ToolBox" Click="Tool_Click" Classes="tool">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Rectangle Width="13" Height="10" RadiusX="1.5" RadiusY="1.5"
+                                       Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToolBoxText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton x:Name="ToolArrow" Click="Tool_Click" Classes="tool">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M2,15 L14,3 M14,3 L8,4 M14,3 L13,9"
+                                  Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.6"
+                                  Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToolArrowText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton x:Name="ToolCrop" Click="Tool_Click" Classes="tool">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M4,0 L4,13 L17,13 M0,4 L13,4 L13,17"
+                                  Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1.5"
+                                  Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ToolCropText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
 
                     <Border Width="1" Height="30" Background="#E5E9F0" Margin="6,0"/>
 
-    <!-- 색상: 선택된 색은 파란 링으로 표시 -->
+                    <!-- 색상: 선택된 색은 파란 링으로 표시 -->
                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <Button x:Name="ColR" Click="Color_Click" Tag="#EF4444" Width="24" Height="24" CornerRadius="12" Background="#EF4444" BorderBrush="#1F5FCC" BorderThickness="3" Padding="0"/>
                         <Button x:Name="ColY" Click="Color_Click" Tag="#FACC15" Width="24" Height="24" CornerRadius="12" Background="#FACC15" BorderThickness="0" Padding="0"/>
                         <Button x:Name="ColG" Click="Color_Click" Tag="#22C55E" Width="24" Height="24" CornerRadius="12" Background="#22C55E" BorderThickness="0" Padding="0"/>
-                        <Button x:Name="ColB" Click="Color_Click" Tag="#2D7DF6" Width="24" Height="24" CornerRadius="12" Background="#2D7DF6" BorderBrush="#1F5FCC" BorderThickness="0" Padding="0"/>
+                        <Button x:Name="ColB" Click="Color_Click" Tag="#2D7DF6" Width="24" Height="24" CornerRadius="12" Background="#2D7DF6" BorderThickness="0" Padding="0"/>
                         <Button x:Name="ColK" Click="Color_Click" Tag="#111827" Width="24" Height="24" CornerRadius="12" Background="#111827" BorderThickness="0" Padding="0"/>
                     </StackPanel>
 
-                    <ComboBox x:Name="CmbThickness" SelectedIndex="1" Width="70" VerticalAlignment="Center" Margin="6,0,0,0">
+                    <ComboBox x:Name="CmbThickness" SelectedIndex="1" Width="80" VerticalAlignment="Center" Margin="6,0,0,0">
                         <ComboBoxItem Content="2 px"/>
                         <ComboBoxItem Content="4 px"/>
                         <ComboBoxItem Content="8 px"/>
                     </ComboBox>
 
-                    <Button x:Name="BtnUndo" Click="Undo_Click" Padding="10,6" CornerRadius="8"/>
+                    <Button x:Name="BtnUndo" Click="Undo_Click" Classes="ghost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M7,3 L2,8 L7,13 M2,8 L11,8 C14,8 16,10 16,13"
+                                  Stroke="#1F2937" StrokeThickness="1.6"
+                                  Width="14" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BtnUndoText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
-                    <Button x:Name="BtnCopy" Click="Copy_Click" Padding="12,7" CornerRadius="8"/>
-                    <Button x:Name="BtnSave" Click="Save_Click" Background="#22C55E" Foreground="White"
-                            Padding="12,7" CornerRadius="8" FontWeight="SemiBold"/>
-                    <Button x:Name="BtnDelete" Click="Delete_Click" Padding="12,7" CornerRadius="8"/>
-                    <Button x:Name="BtnFolder" Click="Folder_Click" Padding="12,7" CornerRadius="8"/>
-                    <Button x:Name="BtnLang" Click="Lang_Click" Padding="12,7" CornerRadius="8"/>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                    <Button x:Name="BtnCopy" Click="Copy_Click" Classes="ghost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M5,1 L13,1 L13,11 L5,11 Z M3,4 L3,14 L11,14"
+                                  Stroke="#1F2937" StrokeThickness="1.5"
+                                  Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BtnCopyText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnSave" Click="Save_Click" Classes="success">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M8,1 L8,10 M4,6 L8,10 L12,6 M2,13 L14,13"
+                                  Stroke="White" StrokeThickness="1.7"
+                                  Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BtnSaveText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnDelete" Click="Delete_Click" Classes="ghost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M3,4 L13,4 M6,4 L6,2.5 L10,2.5 L10,4 M4.5,4 L5,14 L11,14 L11.5,4 M7,6.5 L7,11.5 M9,6.5 L9,11.5"
+                                  Stroke="#1F2937" StrokeThickness="1.4"
+                                  Width="12" Height="13" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BtnDeleteText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnFolder" Click="Folder_Click" Classes="ghost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Data="M1,4 C1,3 1.7,2.2 2.7,2.2 L6.5,2.2 L8.3,4.2 L15,4.2 C16,4.2 16.7,5 16.7,6 L16.7,12.4 C16.7,13.4 16,14.2 15,14.2 L2.7,14.2 C1.7,14.2 1,13.4 1,12.4 Z"
+                                  Stroke="#1F2937" StrokeThickness="1.4"
+                                  Width="14" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BtnFolderText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="BtnLang" Click="Lang_Click" Classes="ghost">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Canvas Width="14" Height="14" VerticalAlignment="Center">
+                                <Ellipse Canvas.Left="0.5" Canvas.Top="0.5" Width="13" Height="13"
+                                         Stroke="#1F2937" StrokeThickness="1.4"/>
+                                <Path Data="M1,7 L13,7 M7,1 C4.6,4 4.6,10 7,13 C9.4,10 9.4,4 7,1"
+                                      Stroke="#1F2937" StrokeThickness="1.2"/>
+                            </Canvas>
+                            <TextBlock x:Name="BtnLangText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
