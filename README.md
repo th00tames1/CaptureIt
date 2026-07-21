@@ -14,11 +14,11 @@ Made by **Heechan Jeong** · MIT License
 
 | OS | File | How to install |
 |---|---|---|
-| **Windows 10/11** | [`CaptureIt-Setup-2.1.7-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.7/CaptureIt-Setup-2.1.7-win-x64.exe) | Run the installer. No administrator rights required. |
-| Windows (portable) | [`CaptureIt-Portable-2.1.7-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.7/CaptureIt-Portable-2.1.7-win-x64.zip) | Unzip and run the exe |
-| **Linux x64** | [`CaptureIt-2.1.7-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.7/CaptureIt-2.1.7-linux-x64.tar.gz) | Extract, then `./install.sh` |
-| **macOS (Apple Silicon)** | [`CaptureIt-2.1.7-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.7/CaptureIt-2.1.7-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
-| macOS (Intel) | [`CaptureIt-2.1.7-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.7/CaptureIt-2.1.7-macos-intel.zip) | Unzip → **right-click → Open** |
+| **Windows 10/11** | [`CaptureIt-Setup-2.1.8-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.8/CaptureIt-Setup-2.1.8-win-x64.exe) | Run the installer. No administrator rights required. |
+| Windows (portable) | [`CaptureIt-Portable-2.1.8-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.8/CaptureIt-Portable-2.1.8-win-x64.zip) | Unzip and run the exe |
+| **Linux x64** | [`CaptureIt-2.1.8-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.8/CaptureIt-2.1.8-linux-x64.tar.gz) | Extract, then `./install.sh` |
+| **macOS (Apple Silicon)** | [`CaptureIt-2.1.8-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.8/CaptureIt-2.1.8-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
+| macOS (Intel) | [`CaptureIt-2.1.8-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/download/v2.1.8/CaptureIt-2.1.8-macos-intel.zip) | Unzip → **right-click → Open** |
 
 > **Windows SmartScreen**: because CaptureIt is a new open-source app without a paid
 > code-signing certificate, Windows may show *"Windows protected your PC"* on first run.
