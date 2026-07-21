@@ -99,34 +99,52 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 단축키 안내 -->
+                <!-- 단축키 (클릭 후 키 조합 입력으로 변경) -->
                 <TextBlock Text="{DynamicResource Settings.Hotkeys}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextMain}"/>
                 <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,4"
                         BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
-                            <RowDefinition/><RowDefinition/><RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="KeyRegion" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRegion}" FontSize="12" Margin="16,0,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" x:Name="KeyElement" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{DynamicResource Settings.HotkeyElement}" FontSize="12" Margin="16,6,0,0"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" x:Name="KeyWindow" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{DynamicResource Settings.HotkeyWindow}" FontSize="12" Margin="16,6,0,0"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" x:Name="KeyFull" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFull}" FontSize="12" Margin="16,6,0,0"/>
-                        <TextBlock Grid.Row="4" Grid.Column="0" x:Name="KeyScroll" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{DynamicResource Settings.HotkeyScroll}" FontSize="12" Margin="16,6,0,0"/>
-                        <TextBlock Grid.Row="5" Grid.Column="0" x:Name="KeyFixed" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFixed}" FontSize="12" Margin="16,6,0,0"/>
-                        <TextBlock Grid.Row="6" Grid.Column="0" x:Name="KeyRepeat" Text="-" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
-                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRepeat}" FontSize="12" Margin="16,6,0,0"/>
-                    </Grid>
+                    <StackPanel>
+                        <Grid>
+                            <Grid.Resources>
+                                <Style x:Key="HotkeyBox" TargetType="TextBox">
+                                    <Setter Property="Width" Value="128"/>
+                                    <Setter Property="FontSize" Value="12"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                    <Setter Property="Padding" Value="6,3"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Setter Property="IsReadOnlyCaretVisible" Value="False"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBox Grid.Row="0" Grid.Column="0" x:Name="HkRegion" Style="{StaticResource HotkeyBox}" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRegion}" FontSize="12" Margin="16,0,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="HkElement" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{DynamicResource Settings.HotkeyElement}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="0" x:Name="HkWindow" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{DynamicResource Settings.HotkeyWindow}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="0" x:Name="HkFull" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFull}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="4" Grid.Column="0" x:Name="HkScroll" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{DynamicResource Settings.HotkeyScroll}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="5" Grid.Column="0" x:Name="HkFixed" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFixed}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="6" Grid.Column="0" x:Name="HkRepeat" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRepeat}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Text="{DynamicResource Settings.HotkeyHint}" FontSize="11"
+                                   Foreground="{StaticResource TextSub}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>

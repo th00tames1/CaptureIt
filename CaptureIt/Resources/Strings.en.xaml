@@ -172,6 +172,8 @@
     <sys:String x:Key="Settings.HotkeyWindow">Capture window</sys:String>
     <sys:String x:Key="Settings.HotkeyFull">Capture full screen</sys:String>
     <sys:String x:Key="Settings.HotkeyRepeat">Capture the same region again</sys:String>
+    <sys:String x:Key="Settings.HotkeyHint">Click a field and press the key combination you want. Press Backspace to disable that hotkey. Changes apply when you save.</sys:String>
+    <sys:String x:Key="Settings.HotkeyDup">This hotkey is assigned more than once: {0}</sys:String>
     <sys:String x:Key="Settings.HotkeyElement">Capture element</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">Scroll capture</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">Fixed-size capture</sys:String>

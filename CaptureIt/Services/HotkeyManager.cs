@@ -44,10 +44,16 @@ public sealed class HotkeyManager : IDisposable
         return IntPtr.Zero;
     }
 
-    public void Dispose()
+    /// <summary>등록된 단축키를 모두 해제한다 (설정 변경 후 재등록용).</summary>
+    public void UnregisterAll()
     {
         foreach (var id in _actions.Keys) UnregisterHotKey(_source.Handle, id);
         _actions.Clear();
+    }
+
+    public void Dispose()
+    {
+        UnregisterAll();
         _source.RemoveHook(WndProc);
     }
 }

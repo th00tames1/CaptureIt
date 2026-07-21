@@ -27,6 +27,8 @@ public partial class ViewfinderWindow : Window
         {
             _scale = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
         };
+        // Per-Monitor V2: 배율이 다른 모니터로 옮기면 창 배율이 바뀐다 — 픽셀 표시를 갱신
+        DpiChanged += (_, e) => { _scale = e.NewDpi.DpiScaleX; SyncBoxes(); };
         // 크기 복원은 첫 레이아웃 이후에: 칩 높이(FrameMarginY)가 그때야 실측된다.
         // SourceInitialized 시점엔 ActualHeight=0이라 세션마다 안쪽 영역이 줄어드는 버그가 있었다.
         Loaded += (_, _) => { RestorePlacement(); SyncBoxes(); Activate(); };

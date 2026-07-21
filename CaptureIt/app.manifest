@@ -9,7 +9,14 @@
     </security>
   </trustInfo>
 
-  <!-- DPI: WPF 기본값(System DPI aware)을 사용한다. 캡처 좌표는 시스템 DPI 배율로 균일 변환. -->
+  <!-- DPI: Per-Monitor V2. 모니터별 배율이 달라도 좌표 가상화 없이 물리 픽셀을 그대로 받는다.
+       (시스템 DPI 인식 방식은 배율이 다른 모니터에서 화면 일부만 확대 캡처되는 문제가 있었음) -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
+    </windowsSettings>
+  </application>
 
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>

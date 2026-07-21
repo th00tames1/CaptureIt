@@ -37,6 +37,15 @@ public class AppSettings
     public double TextFontSize { get; set; } = 16;
     public bool RunAtStartup { get; set; } = true;      // Windows 시작 시 자동 실행
     public bool MainTopmost { get; set; } = false;      // 메인 툴바 항상 위
+
+    // 전역 단축키 (Ctrl+Shift+A 형식, 빈 문자열 = 사용 안 함). 설정에서 변경 가능.
+    public string HotkeyRegion { get; set; } = "Ctrl+Shift+A";
+    public string HotkeyElement { get; set; } = "Ctrl+Shift+E";
+    public string HotkeyWindow { get; set; } = "Ctrl+Shift+W";
+    public string HotkeyFull { get; set; } = "Ctrl+Shift+F";
+    public string HotkeyScroll { get; set; } = "Ctrl+Shift+S";
+    public string HotkeyFixed { get; set; } = "Ctrl+Shift+D";
+    public string HotkeyRepeat { get; set; } = "Ctrl+Shift+R";
     // 메인 창 위치 기억 (null = 아직 없음). NaN은 JSON 직렬화가 불가능하므로 nullable 사용.
     public double? MainLeft { get; set; }
     public double? MainTop { get; set; }

@@ -82,19 +82,36 @@ public partial class MainWindow : Window
     public static string ScrollKeyLabel { get; private set; } = "-";
     public static string FixedKeyLabel { get; private set; } = "-";
 
-    /// <summary>선호 조합이 다른 앱에 선점됐으면 대체 조합을 차례로 시도한다.</summary>
-    private string TryRegister(uint vk, Action action)
+    /// <summary>
+    /// 설정에 저장된 조합을 등록한다. 기본값 그대로인데 다른 앱이 선점한 경우에만
+    /// 대체 수정키 조합을 시도하고, 성공한 조합을 설정에 반영한다.
+    /// 사용자가 직접 바꾼 조합은 대체하지 않는다 (예측 가능성 우선).
+    /// </summary>
+    private string RegisterOne(string combo, string factoryDefault, Action<string> saveBack, Action action)
     {
-        (uint mods, string prefix)[] candidates =
+        if (string.IsNullOrWhiteSpace(combo)) return "-";                       // 사용 안 함
+        if (!HotkeyUtil.TryParse(combo, out uint mods, out uint vk)) return "-";
+
+        if (_hotkeys!.Register(mods, vk, action))
+            return HotkeyUtil.Format(mods, vk);
+
+        if (combo == factoryDefault)
         {
-            (HotkeyManager.MOD_CONTROL | HotkeyManager.MOD_SHIFT, "Ctrl+Shift+"),
-            (HotkeyManager.MOD_CONTROL | HotkeyManager.MOD_ALT,   "Ctrl+Alt+"),
-            (HotkeyManager.MOD_ALT | HotkeyManager.MOD_SHIFT,     "Alt+Shift+"),
-        };
-        char key = (char)vk;
-        foreach (var (mods, prefix) in candidates)
-            if (_hotkeys!.Register(mods, vk, action))
-                return prefix + key;
+            uint[] fallbacks =
+            {
+                HotkeyManager.MOD_CONTROL | HotkeyManager.MOD_ALT,
+                HotkeyManager.MOD_ALT | HotkeyManager.MOD_SHIFT,
+            };
+            foreach (var fb in fallbacks)
+            {
+                if (_hotkeys.Register(fb, vk, action))
+                {
+                    var label = HotkeyUtil.Format(fb, vk);
+                    saveBack(label);   // 설정 창에 실제 동작 조합이 보이도록 저장
+                    return label;
+                }
+            }
+        }
         return "-";
     }
 
@@ -102,20 +119,31 @@ public partial class MainWindow : Window
     {
         if (_hotkeysRegistered) return;
         _hotkeysRegistered = true;
-
         _hotkeys = new HotkeyManager(this);
-        const uint VK_A = 0x41, VK_W = 0x57, VK_F = 0x46, VK_R = 0x52,
-                   VK_E = 0x45, VK_S = 0x53, VK_D = 0x44;
+        RegisterAllHotkeys();
+    }
 
-        RegionKeyLabel = TryRegister(VK_A, () => _ = StartRegionCapture());
-        WindowKeyLabel = TryRegister(VK_W, () => _ = StartWindowCapture());
-        FullKeyLabel = TryRegister(VK_F, () => _ = StartFullCapture());
-        RepeatKeyLabel = TryRegister(VK_R, () => _ = StartRepeatCapture());
-        ElementKeyLabel = TryRegister(VK_E, () => _ = StartElementCapture());
-        ScrollKeyLabel = TryRegister(VK_S, () => _ = StartScrollCapture());
-        FixedKeyLabel = TryRegister(VK_D, ToggleViewfinder);
+    /// <summary>설정 변경 후 전체 재등록.</summary>
+    public void ReloadHotkeys()
+    {
+        if (_hotkeys == null) { EnsureHotkeys(); return; }
+        _hotkeys.UnregisterAll();
+        RegisterAllHotkeys();
+    }
 
+    private void RegisterAllHotkeys()
+    {
+        RegionKeyLabel = RegisterOne(S.HotkeyRegion, "Ctrl+Shift+A", v => S.HotkeyRegion = v, () => _ = StartRegionCapture());
+        ElementKeyLabel = RegisterOne(S.HotkeyElement, "Ctrl+Shift+E", v => S.HotkeyElement = v, () => _ = StartElementCapture());
+        WindowKeyLabel = RegisterOne(S.HotkeyWindow, "Ctrl+Shift+W", v => S.HotkeyWindow = v, () => _ = StartWindowCapture());
+        FullKeyLabel = RegisterOne(S.HotkeyFull, "Ctrl+Shift+F", v => S.HotkeyFull = v, () => _ = StartFullCapture());
+        ScrollKeyLabel = RegisterOne(S.HotkeyScroll, "Ctrl+Shift+S", v => S.HotkeyScroll = v, () => _ = StartScrollCapture());
+        FixedKeyLabel = RegisterOne(S.HotkeyFixed, "Ctrl+Shift+D", v => S.HotkeyFixed = v, ToggleViewfinder);
+        RepeatKeyLabel = RegisterOne(S.HotkeyRepeat, "Ctrl+Shift+R", v => S.HotkeyRepeat = v, () => _ = StartRepeatCapture());
+
+        S.Save();
         RefreshHotkeyLabels();
+        if (_trayReady) RebuildTrayMenu();
     }
 
     private void RefreshHotkeyLabels()
@@ -313,8 +341,9 @@ public partial class MainWindow : Window
     {
         var win = new SettingsWindow();
         if (IsVisible) win.Owner = this;
-        win.ShowDialog();
-        ApplyTraySetting();   // 트레이 설정 변경을 즉시 반영
+        bool? saved = win.ShowDialog();
+        ApplyTraySetting();          // 트레이 설정 변경을 즉시 반영
+        if (saved == true) ReloadHotkeys();   // 단축키 변경 즉시 적용
     }
 
     private void ApplyTraySetting()

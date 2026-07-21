@@ -49,8 +49,10 @@ Made by **Heechan Jeong** · MIT License
 | Repeat last region | Instantly re-captures the previous region | `Ctrl+Shift+R` |
 | Delayed | Pick the area first, then a 3/5/10 s countdown captures the live screen (great for open menus) | (in-app) |
 
-> If a preferred hotkey is taken by another app, CaptureIt automatically falls back to
-> `Ctrl+Alt+…`, then `Alt+Shift+…`, and shows the actually-registered keys in the UI.
+> Every hotkey can be changed in Settings: click a field, press the combination you
+> want (or Backspace to disable it), and save. If a default hotkey is taken by another
+> app, CaptureIt falls back to `Ctrl+Alt+…`, then `Alt+Shift+…`, and shows the
+> actually-registered keys in the UI.
 
 ### Recent captures
 
@@ -108,7 +110,7 @@ Release binaries are produced automatically by
 
 ## Known limitations
 
-- Windows: on multi-monitor setups with *different* DPI scales, region coordinates can be slightly off.
+- Windows: the app is per-monitor DPI aware (v2); mixed-DPI multi-monitor setups are supported. If you spot a coordinate offset on an unusual arrangement, please report it.
 - Scrolling capture drives the window's own scrollbar, so pages that hijack the wheel (some slideshows/maps) may not stitch cleanly.
 - The macOS/Linux edition is built in CI; day-to-day testing happens on Windows. Please [report issues](https://github.com/th00tames1/CaptureIt/issues).
 

@@ -74,18 +74,44 @@ public partial class RegionSelectWindow : Window
         MouseRightButtonUp += (_, _) => Cancel();
     }
 
-    /// <summary>가상 화면 전체를 덮도록 창을 배치한다 (물리 픽셀 → DIU 변환).</summary>
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
+    private const uint SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
+    private const int WM_DPICHANGED = 0x02E0;
+
+    /// <summary>
+    /// 가상 화면 전체를 덮도록 창을 배치한다.
+    /// 모니터별 배율(DPI)이 다른 환경에서도 정확히 덮이도록 WPF DIU 대신
+    /// Win32로 물리 픽셀 좌표를 직접 지정한다 (Per-Monitor V2).
+    /// </summary>
     private void FitToVirtualScreen()
     {
+        var hwnd = new WindowInteropHelper(this).Handle;
+
+        // 창이 배율이 다른 모니터에 걸칠 때 WPF가 '제안 크기'로 창을 다시 줄이지 못하게
+        // WM_DPICHANGED를 흡수한다. 배율은 생성 시점 값을 계속 사용해 좌표 계산을 일관되게 유지.
+        if (HwndSource.FromHwnd(hwnd) is { } hs)
+            hs.AddHook(SuppressDpiChange);
+
+        SetWindowPos(hwnd, IntPtr.Zero, _virtualBounds.X, _virtualBounds.Y,
+                     _virtualBounds.Width, _virtualBounds.Height, SWP_NOZORDER | SWP_NOACTIVATE);
+
         var src = PresentationSource.FromVisual(this);
         _scale = src?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
 
-        Left = _virtualBounds.X / _scale;
-        Top = _virtualBounds.Y / _scale;
-        Width = _virtualBounds.Width / _scale;
-        Height = _virtualBounds.Height / _scale;
-
         UpdateDim(Rect.Empty);
+    }
+
+    private IntPtr SuppressDpiChange(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WM_DPICHANGED)
+        {
+            // 물리 배치를 강제로 유지한다 (WPF 기본 동작은 창을 제안 rect로 옮겨 전체 덮임이 깨짐)
+            SetWindowPos(hwnd, IntPtr.Zero, _virtualBounds.X, _virtualBounds.Y,
+                         _virtualBounds.Width, _virtualBounds.Height, SWP_NOZORDER | SWP_NOACTIVATE);
+            handled = true;
+        }
+        return IntPtr.Zero;
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)

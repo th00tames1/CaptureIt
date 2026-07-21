@@ -12,13 +12,45 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         LoadFromSettings();
-        KeyRegion.Text = MainWindow.RegionKeyLabel;
-        KeyWindow.Text = MainWindow.WindowKeyLabel;
-        KeyFull.Text = MainWindow.FullKeyLabel;
-        KeyRepeat.Text = MainWindow.RepeatKeyLabel;
-        KeyElement.Text = MainWindow.ElementKeyLabel;
-        KeyScroll.Text = MainWindow.ScrollKeyLabel;
-        KeyFixed.Text = MainWindow.FixedKeyLabel;
+        HkRegion.Text = S.HotkeyRegion;
+        HkElement.Text = S.HotkeyElement;
+        HkWindow.Text = S.HotkeyWindow;
+        HkFull.Text = S.HotkeyFull;
+        HkScroll.Text = S.HotkeyScroll;
+        HkFixed.Text = S.HotkeyFixed;
+        HkRepeat.Text = S.HotkeyRepeat;
+    }
+
+    /// <summary>
+    /// 단축키 입력란: 누른 키 조합을 그대로 기록한다.
+    /// Backspace/Delete는 해제(빈 값), Tab은 포커스 이동, Esc는 포커스 해제.
+    /// </summary>
+    private void HotkeyBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        var box = (System.Windows.Controls.TextBox)sender;
+        var key = e.Key == System.Windows.Input.Key.System ? e.SystemKey : e.Key;
+
+        if (key == System.Windows.Input.Key.Tab) return;   // 기본 포커스 이동 허용
+        e.Handled = true;
+
+        switch (key)
+        {
+            case System.Windows.Input.Key.Back or System.Windows.Input.Key.Delete:
+                box.Text = "";
+                return;
+            case System.Windows.Input.Key.Escape:
+                System.Windows.Input.Keyboard.ClearFocus();
+                return;
+            // 수정키 단독 입력은 무시 (조합 완성 대기)
+            case System.Windows.Input.Key.LeftCtrl or System.Windows.Input.Key.RightCtrl
+                 or System.Windows.Input.Key.LeftAlt or System.Windows.Input.Key.RightAlt
+                 or System.Windows.Input.Key.LeftShift or System.Windows.Input.Key.RightShift
+                 or System.Windows.Input.Key.LWin or System.Windows.Input.Key.RWin:
+                return;
+        }
+
+        var combo = Services.HotkeyUtil.FromKeyEvent(key, System.Windows.Input.Keyboard.Modifiers);
+        if (combo != null) box.Text = combo;
     }
 
     private void LoadFromSettings()
@@ -82,6 +114,31 @@ public partial class SettingsWindow : Window
         S.HideMainWindowOnCapture = ChkHide.IsChecked == true;
         S.PlaySound = ChkSound.IsChecked == true;
         S.ShowTrayIcon = ChkTray.IsChecked == true;
+
+        // 단축키: 중복 검증 후 저장 (입력 단계에서 형식은 이미 보장됨)
+        var hotkeyBoxes = new (System.Windows.Controls.TextBox box, Action<string> set)[]
+        {
+            (HkRegion, v => S.HotkeyRegion = v),
+            (HkElement, v => S.HotkeyElement = v),
+            (HkWindow, v => S.HotkeyWindow = v),
+            (HkFull, v => S.HotkeyFull = v),
+            (HkScroll, v => S.HotkeyScroll = v),
+            (HkFixed, v => S.HotkeyFixed = v),
+            (HkRepeat, v => S.HotkeyRepeat = v),
+        };
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (box, _) in hotkeyBoxes)
+        {
+            var combo = box.Text.Trim();
+            if (combo.Length == 0) continue;
+            if (!Services.HotkeyUtil.TryParse(combo, out _, out _) || !seen.Add(combo))
+            {
+                MessageBox.Show(this, Loc.F("Settings.HotkeyDup", combo), Loc.Get("App.Name"),
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+        foreach (var (box, set) in hotkeyBoxes) set(box.Text.Trim());
 
         // 언어 · 시작 프로그램
         S.Language = CmbLanguage.SelectedIndex == 1 ? "en" : "ko";

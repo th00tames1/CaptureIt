@@ -172,6 +172,8 @@
     <sys:String x:Key="Settings.HotkeyWindow">창 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyFull">전체 화면 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyRepeat">같은 영역 다시 캡처</sys:String>
+    <sys:String x:Key="Settings.HotkeyHint">입력란을 클릭한 뒤 원하는 키 조합을 누르세요. Backspace를 누르면 해당 단축키를 사용하지 않습니다. 저장 시 즉시 적용됩니다.</sys:String>
+    <sys:String x:Key="Settings.HotkeyDup">단축키가 중복되었습니다: {0}</sys:String>
     <sys:String x:Key="Settings.HotkeyElement">화면 요소 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">스크롤 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">고정 크기 캡처</sys:String>
