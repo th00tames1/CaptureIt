@@ -17,7 +17,7 @@ DefaultDirName={autopf}\CaptureIt
 DisableProgramGroupPage=yes
 ; 관리자 권한 불필요 — 사용자 폴더에 설치되어 누구나 바로 설치 가능
 PrivilegesRequired=lowest
-OutputBaseFilename=CaptureIt-Setup-win-x64
+OutputBaseFilename=CaptureIt-Setup-{#AppVersion}-win-x64
 OutputDir=..\dist
 SetupIconFile=..\CaptureIt\app.ico
 UninstallDisplayIcon={app}\CaptureIt.exe

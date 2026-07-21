@@ -14,11 +14,11 @@ Made by **Heechan Jeong** · MIT License
 
 | OS | File | How to install |
 |---|---|---|
-| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | Run the installer. No administrator rights required. |
-| Windows (portable) | [`CaptureIt-Portable-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Portable-win-x64.zip) | Unzip and run the exe |
-| **Linux x64** | [`CaptureIt-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-linux-x64.tar.gz) | Extract, then `./install.sh` |
-| **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
-| macOS (Intel) | [`CaptureIt-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-intel.zip) | Unzip → **right-click → Open** |
+| **Windows 10/11** | [`CaptureIt-Setup-<version>-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest) | Run the installer. No administrator rights required. |
+| Windows (portable) | [`CaptureIt-Portable-<version>-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | Unzip and run the exe |
+| **Linux x64** | [`CaptureIt-<version>-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest) | Extract, then `./install.sh` |
+| **macOS (Apple Silicon)** | [`CaptureIt-<version>-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | Unzip → **right-click → Open** |
+| macOS (Intel) | [`CaptureIt-<version>-macos-intel.zip`](https://github.com/th00tames1/CaptureIt/releases/latest) | Unzip → **right-click → Open** |
 
 > **Windows SmartScreen**: because CaptureIt is a new open-source app without a paid
 > code-signing certificate, Windows may show *"Windows protected your PC"* on first run.

@@ -25,7 +25,10 @@ jobs:
           -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win
 
       - name: Portable zip
-        run: Compress-Archive -Path publish/win/CaptureIt.exe -DestinationPath CaptureIt-Portable-win-x64.zip
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          Compress-Archive -Path publish/win/CaptureIt.exe -DestinationPath "CaptureIt-Portable-$ver-win-x64.zip"
 
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
@@ -36,14 +39,14 @@ jobs:
           $ver = "${{ github.ref_name }}".TrimStart("v")
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=$ver installer\CaptureIt.iss
           # 아티팩트 경로가 평평해지도록 루트로 이동
-          Move-Item dist\CaptureIt-Setup-win-x64.exe .
+          Move-Item "dist\CaptureIt-Setup-$ver-win-x64.exe" .
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
-            CaptureIt-Setup-win-x64.exe
-            CaptureIt-Portable-win-x64.zip
+            CaptureIt-Setup-*-win-x64.exe
+            CaptureIt-Portable-*-win-x64.zip
 
   # ── Linux: 크로스 에디션 tar.gz ──────────────────────────────────────────
   build-linux:
@@ -63,16 +66,17 @@ jobs:
 
       - name: Package tar.gz
         run: |
+          ver="${GITHUB_REF_NAME#v}"
           mkdir -p stage/CaptureIt
           cp publish/linux/CaptureIt stage/CaptureIt/
           cp packaging/linux/captureit.desktop packaging/linux/install.sh stage/CaptureIt/
           chmod +x stage/CaptureIt/CaptureIt stage/CaptureIt/install.sh
-          tar -czf CaptureIt-linux-x64.tar.gz -C stage CaptureIt
+          tar -czf "CaptureIt-$ver-linux-x64.tar.gz" -C stage CaptureIt
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: CaptureIt-linux-x64.tar.gz
+          path: CaptureIt-*-linux-x64.tar.gz
 
   # ── macOS: 크로스 에디션 .app 번들 (Intel + Apple Silicon) ───────────────
   build-macos:
@@ -104,12 +108,12 @@ jobs:
           cp publish/mac/CaptureIt "CaptureIt.app/Contents/MacOS/CaptureIt"
           chmod +x "CaptureIt.app/Contents/MacOS/CaptureIt"
           sed "s/APP_VERSION/$ver/g" packaging/macos/Info.plist > "CaptureIt.app/Contents/Info.plist"
-          ditto -c -k --keepParent CaptureIt.app "CaptureIt-macos-${{ matrix.suffix }}.zip"
+          ditto -c -k --keepParent CaptureIt.app "CaptureIt-$ver-macos-${{ matrix.suffix }}.zip"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.suffix }}
-          path: CaptureIt-macos-${{ matrix.suffix }}.zip
+          path: CaptureIt-*-macos-${{ matrix.suffix }}.zip
 
   # ── 릴리스 생성 ──────────────────────────────────────────────────────────
   release:
@@ -120,25 +124,29 @@ jobs:
         with:
           merge-multiple: true
 
+      - name: Version
+        id: ver
+        run: echo "v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            CaptureIt-Setup-win-x64.exe
-            CaptureIt-Portable-win-x64.zip
-            CaptureIt-linux-x64.tar.gz
-            CaptureIt-macos-intel.zip
-            CaptureIt-macos-apple-silicon.zip
+            CaptureIt-Setup-*-win-x64.exe
+            CaptureIt-Portable-*-win-x64.zip
+            CaptureIt-*-linux-x64.tar.gz
+            CaptureIt-*-macos-intel.zip
+            CaptureIt-*-macos-apple-silicon.zip
           generate_release_notes: true
           body: |
             ## Downloads · 다운로드
 
             | OS | File | Notes |
             |---|---|---|
-            | **Windows 10/11** | `CaptureIt-Setup-win-x64.exe` | Installer — recommended · 설치 프로그램 (권장) |
-            | Windows 10/11 | `CaptureIt-Portable-win-x64.zip` | Portable, no install · 무설치 포터블 |
-            | **Linux x64** | `CaptureIt-linux-x64.tar.gz` | Extract, then run `./install.sh` (cross-platform edition) |
-            | **macOS (Apple Silicon)** | `CaptureIt-macos-apple-silicon.zip` | Unzip → right-click → Open (cross-platform edition) |
-            | macOS (Intel) | `CaptureIt-macos-intel.zip` | Unzip → right-click → Open (cross-platform edition) |
+            | **Windows 10/11** | `CaptureIt-Setup-${{ steps.ver.outputs.v }}-win-x64.exe` | Installer, recommended · 설치 프로그램 (권장) |
+            | Windows 10/11 | `CaptureIt-Portable-${{ steps.ver.outputs.v }}-win-x64.zip` | Portable, no install · 무설치 포터블 |
+            | **Linux x64** | `CaptureIt-${{ steps.ver.outputs.v }}-linux-x64.tar.gz` | Extract, then run `./install.sh` (cross-platform edition) |
+            | **macOS (Apple Silicon)** | `CaptureIt-${{ steps.ver.outputs.v }}-macos-apple-silicon.zip` | Unzip → right-click → Open (cross-platform edition) |
+            | macOS (Intel) | `CaptureIt-${{ steps.ver.outputs.v }}-macos-intel.zip` | Unzip → right-click → Open (cross-platform edition) |
 
             **macOS**: unsigned app — first launch requires **right-click → Open**, and grant *Screen Recording* permission when prompted.
             **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` / ImageMagick; clipboard needs `wl-clipboard` or `xclip`.
