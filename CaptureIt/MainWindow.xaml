@@ -20,11 +20,24 @@
             <!-- ── 타이틀 바 ── -->
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseDown" Background="Transparent">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Grid Width="22" Height="22">
-                        <Ellipse Fill="{StaticResource PrimaryBrush}"/>
-                        <Ellipse Fill="White" Width="9" Height="9"/>
-                        <Ellipse Fill="{StaticResource PrimaryBrush}" Width="5" Height="5"/>
-                    </Grid>
+                    <!-- 앱 아이콘(app.ico)과 동일한 카메라 로고 (벡터 재현) -->
+                    <Border Width="22" Height="22" CornerRadius="5">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0.6,1">
+                                <GradientStop Color="#3F8CF8" Offset="0"/>
+                                <GradientStop Color="#1E5FCC" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Canvas>
+                            <Border Canvas.Left="8.1" Canvas.Top="4.9" Width="5.8" Height="3.6"
+                                    Background="White" CornerRadius="1.2,1.2,0,0"/>
+                            <Border Canvas.Left="3.5" Canvas.Top="7.2" Width="15" Height="10"
+                                    Background="White" CornerRadius="2.6"/>
+                            <Ellipse Canvas.Left="7.2" Canvas.Top="8.9" Width="6.6" Height="6.6" Fill="#1B57C9"/>
+                            <Ellipse Canvas.Left="8.3" Canvas.Top="9.9" Width="2.5" Height="2.5" Fill="#7FB0F7"/>
+                            <Ellipse Canvas.Left="14.9" Canvas.Top="8.9" Width="2" Height="2" Fill="#FACC15"/>
+                        </Canvas>
+                    </Border>
                     <TextBlock Text="{DynamicResource App.Name}" FontWeight="Bold" FontSize="14"
                                Foreground="{StaticResource TextMain}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource App.Tagline}" FontSize="11"
