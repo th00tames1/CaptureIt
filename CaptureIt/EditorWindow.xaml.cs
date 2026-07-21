@@ -11,8 +11,8 @@ using CaptureIt.Services;
 namespace CaptureIt;
 
 /// <summary>
-/// 결과창(편집기). 알캡처 결과창을 벤치마크 — 우측에 최근 캡처 목록을 두고
-/// 항목을 클릭하면 언제든 다시 편집할 수 있다. 창은 닫아도 숨겨질 뿐 상태를 유지한다.
+/// 결과창(편집기). 우측에 최근 캡처 목록을 두어 항목을 클릭하면 언제든 다시
+/// 편집할 수 있다. 창은 닫아도 숨겨질 뿐 상태를 유지한다.
 /// </summary>
 public partial class EditorWindow : Window
 {
@@ -118,7 +118,7 @@ public partial class EditorWindow : Window
         finally { if (seq == _loadSeq) _itemLoading = false; }
 
         if (seq != _loadSeq) return;   // 로드 중 다른 항목이 선택됨
-        if (!HistoryService.Items.Contains(item)) return;   // 로드 중 삭제됨 — 유령 부활 방지
+        if (!HistoryService.Items.Contains(item)) return;   // 로드 중 삭제됨: 유령 부활 방지
         if (img == null)
         {
             // CollectionChanged 디스패치 중 재진입(Items 수정)을 피하기 위해 삭제를 지연한다
@@ -153,7 +153,7 @@ public partial class EditorWindow : Window
 
     private void ResetCanvasState()
     {
-        // 주의: _numberCounter는 여기서 초기화하지 않는다 — 저장/자르기 후 같은 이미지 위에서
+        // 주의: _numberCounter는 여기서 초기화하지 않는다: 저장/자르기 후 같은 이미지 위에서
         // 번호가 이어져야 하므로, 항목 전환 시에만 명시적으로 1로 되돌린다.
         if (DrawCanvas.IsMouseCaptured) DrawCanvas.ReleaseMouseCapture();
         DrawCanvas.Children.Clear();
@@ -564,7 +564,7 @@ public partial class EditorWindow : Window
         _drawing = false;
         DrawCanvas.ReleaseMouseCapture();
         var pos = e.GetPosition(DrawCanvas);
-        // MouseMove와 동일하게 클램프 — 캔버스 밖에서 놓아도 미리보기와 같은 영역에 적용
+        // MouseMove와 동일하게 클램프: 캔버스 밖에서 놓아도 미리보기와 같은 영역에 적용
         pos.X = Math.Clamp(pos.X, 0, DrawCanvas.Width);
         pos.Y = Math.Clamp(pos.Y, 0, DrawCanvas.Height);
         var rect = new Rect(_start, pos);
@@ -967,7 +967,7 @@ public partial class EditorWindow : Window
     {
         if (_currentItem is not { } item) return;
 
-        int seq = ++_loadSeq;   // ShowItem과 같은 가드 — 로드 중 항목 전환 시 낡은 결과 폐기
+        int seq = ++_loadSeq;   // ShowItem과 같은 가드: 로드 중 항목 전환 시 낡은 결과 폐기
         _itemLoading = true;
         BitmapSource? img;
         try { img = await item.LoadFullAsync(); }

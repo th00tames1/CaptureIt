@@ -1,4 +1,4 @@
-<Window x:Class="CaptureIt.ViewfinderWindow"
+﻿<Window x:Class="CaptureIt.ViewfinderWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="CaptureIt Frame"
@@ -28,7 +28,7 @@
                     Cursor="SizeWE" Tag="right" MouseLeftButtonDown="Edge_MouseDown"/>
 
             <!-- 보이는 프레임 (표시 전용). 그림자·둥근 모서리는 캡처 영역 안쪽으로
-                 번져 결과물에 찍히므로 쓰지 않는다 — 또렷한 직사각 테두리만. -->
+                 번져 결과물에 찍히므로 쓰지 않는다: 또렷한 직사각 테두리만. -->
             <Border BorderBrush="#2D7DF6" BorderThickness="3" Margin="6" IsHitTestVisible="False"/>
 
             <!-- 실제 캡처되는 안쪽 영역 (좌표 계산용, 렌더링 없음) -->

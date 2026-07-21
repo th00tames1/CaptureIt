@@ -1,10 +1,10 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace CaptureIt.Cross;
 
 /// <summary>
 /// 플랫폼별 화면 캡처. 결과는 PNG 파일 경로 (실패/취소 시 null).
-/// macOS/Linux는 OS 네이티브 도구에 위임한다 — Wayland·멀티모니터·권한 문제를
+/// macOS/Linux는 OS 네이티브 도구에 위임한다: Wayland·멀티모니터·권한 문제를
 /// 가장 안정적으로 처리하는 방법이고, 영역 선택 UI도 OS 것을 그대로 쓴다.
 /// </summary>
 public static class ScreenGrab
@@ -30,7 +30,7 @@ public static class ScreenGrab
         }
     }
 
-    // ── Windows (개발/테스트용 — 정식 Windows 배포판은 WPF 에디션) ──────────
+    // ── Windows (개발/테스트용: 정식 Windows 배포판은 WPF 에디션) ──────────
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern int GetSystemMetrics(int index);
 
@@ -94,7 +94,7 @@ public static class ScreenGrab
             }
 
             if (File.Exists(tmp) && new FileInfo(tmp).Length > 0) return new Result(tmp, null);
-            // 파일이 없으면 취소 또는 실패 — 취소로 보고 다음 도구는 시도하지 않는다
+            // 파일이 없으면 취소 또는 실패: 취소로 보고 다음 도구는 시도하지 않는다
             // (도구는 있는데 사용자가 Esc를 눌렀을 가능성이 높다)
             return new Result(null, "cancelled");
         }

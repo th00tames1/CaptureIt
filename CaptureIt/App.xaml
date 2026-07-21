@@ -167,7 +167,7 @@
             </Setter>
         </Style>
 
-        <!-- ── 투명(체크무늬) 브러시 — '채우기 없음' 스와치용 ── -->
+        <!-- ── 투명(체크무늬) 브러시: '채우기 없음' 스와치용 ── -->
         <DrawingBrush x:Key="CheckerBrush" TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
             <DrawingBrush.Drawing>
                 <DrawingGroup>

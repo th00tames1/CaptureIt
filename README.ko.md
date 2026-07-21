@@ -2,8 +2,8 @@
 
 [English](README.md)
 
-누구나 쉽게 쓸 수 있는 화면 캡처 프로그램입니다.
-Windows용 풀 에디션(.NET 8 + WPF)과 Linux/macOS용 크로스 플랫폼 에디션(Avalonia)을 제공합니다.
+화면 캡처와 주석 작성을 위한 데스크톱 도구입니다.
+Windows 정식 에디션(.NET 8 + WPF)과 Linux/macOS 크로스 플랫폼 에디션(Avalonia)을 제공합니다.
 Made by **Heechan Jeong** · MIT License
 
 ![Windows editor](docs/screenshot-editor.png)
@@ -14,7 +14,7 @@ Made by **Heechan Jeong** · MIT License
 
 | OS | 파일 | 설치 방법 |
 |---|---|---|
-| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | 실행하면 끝 (관리자 권한 불필요) |
+| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | 설치 관리자를 실행합니다. 관리자 권한이 필요하지 않습니다. |
 | Windows (무설치) | [`CaptureIt-Portable-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Portable-win-x64.zip) | 압축 풀고 exe 실행 |
 | **Linux x64** | [`CaptureIt-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-linux-x64.tar.gz) | 압축 해제 후 `./install.sh` |
 | **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | 압축 해제 → **우클릭 → 열기** |
@@ -78,9 +78,9 @@ Made by **Heechan Jeong** · MIT License
 
 ![Cross-platform edition](docs/screenshot-cross.png)
 
-Avalonia 기반의 가벼운 에디션으로, 캡처는 각 OS의 네이티브 스크린샷 도구에 위임합니다
-(macOS `screencapture`, Linux `gnome-screenshot`/`grim` 등 — Wayland·멀티모니터·권한을
-OS가 가장 잘 처리하기 때문입니다).
+Avalonia 기반의 경량 에디션입니다. 캡처는 각 OS의 네이티브 스크린샷 도구
+(macOS `screencapture`, Linux `gnome-screenshot`/`grim` 등)에 위임합니다.
+Wayland, 멀티 모니터, 권한 처리를 OS가 가장 정확하게 다루기 때문입니다.
 
 | 기능 | 지원 |
 |---|---|

@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 
@@ -135,7 +135,7 @@ public static class ScrollCaptureService
             }
             else
             {
-                rows.AddRange(firstFrame);   // 스크롤이 전혀 안 됨 — 한 화면만 반환
+                rows.AddRange(firstFrame);   // 스크롤이 전혀 안 됨: 한 화면만 반환
             }
             return ComposeImage(rows, w);
         });
@@ -237,7 +237,7 @@ public static class ScrollCaptureService
             unique[i] = counts[prev[from + i]] == 1;
             if (unique[i]) uniqueTotal++;
         }
-        if (uniqueTotal < MinAnchors) return 0;   // 빈 화면 등 — 판단 불가
+        if (uniqueTotal < MinAnchors) return 0;   // 빈 화면 등: 판단 불가
 
         int maxOffset = win - Math.Min(40, win / 4);
         for (int d = MinScrollPx; d <= maxOffset; d++)

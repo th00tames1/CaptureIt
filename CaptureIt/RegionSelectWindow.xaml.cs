@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -211,7 +211,7 @@ public partial class RegionSelectWindow : Window
         _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _hookProc, GetModuleHandle(null), 0);
         if (_mouseHook == IntPtr.Zero)
         {
-            // 훅 없이 클릭 통과 창을 띄우면 사용자가 조작 불능이 된다 — 즉시 중단
+            // 훅 없이 클릭 통과 창을 띄우면 사용자가 조작 불능이 된다: 즉시 중단
             Dispatcher.BeginInvoke(Cancel);
             return;
         }
@@ -265,7 +265,7 @@ public partial class RegionSelectWindow : Window
                     }
                     break;   // 이동은 삼키지 않는다 (아래 앱 호버 효과 유지)
 
-                // DOWN에서 예약하고 짝이 되는 UP까지 삼킨 뒤 실행 —
+                // DOWN에서 예약하고 짝이 되는 UP까지 삼킨 뒤 실행 :
                 // 고아 UP이 아래 앱에 전달되어 클릭이 실행되는 것을 막는다.
                 case WM_LBUTTONDOWN:
                     _leftPending = true;

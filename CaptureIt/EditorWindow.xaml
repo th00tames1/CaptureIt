@@ -187,7 +187,7 @@
                                   SelectionChanged="Thickness_Changed"/>
                     </StackPanel>
 
-                    <!-- 채우기 색 — 사각형/원 도구에서만 표시 -->
+                    <!-- 채우기 색: 사각형/원 도구에서만 표시 -->
                     <StackPanel x:Name="FillGroup" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Editor.Fill}" FontSize="9" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
@@ -206,7 +206,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- 글꼴/크기 — 텍스트 도구에서만 표시. 입력 중인 텍스트박스에 즉시 반영 -->
+                    <!-- 글꼴/크기: 텍스트 도구에서만 표시. 입력 중인 텍스트박스에 즉시 반영 -->
                     <StackPanel x:Name="TextGroup" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Editor.Font}" FontSize="9" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
@@ -301,7 +301,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- 캡처 목록 사이드바 (알캡처 '최근 캡처 목록' 벤치마크) -->
+            <!-- 캡처 목록 사이드바: 최근 캡처를 항상 곁에 두고 즉시 전환·편집 -->
             <Border Grid.Column="1" Background="{StaticResource CardBg}"
                     BorderBrush="{StaticResource BorderSoft}" BorderThickness="1,0,0,0">
                 <Grid>

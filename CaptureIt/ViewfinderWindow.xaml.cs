@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using CaptureIt.Models;
 using CaptureIt.Services;
@@ -7,7 +7,7 @@ namespace CaptureIt;
 
 /// <summary>
 /// 고정 크기 캡처용 라이브 뷰파인더.
-/// 화면을 정지시키지 않고 항상 위에 떠 있는 틀 — 중앙은 클릭이 통과해 아래 앱을
+/// 화면을 정지시키지 않고 항상 위에 떠 있는 틀: 중앙은 클릭이 통과해 아래 앱을
 /// 그대로 조작할 수 있고, 내용이 바뀔 때마다 캡처 버튼(Enter)으로 반복 캡처한다.
 /// </summary>
 public partial class ViewfinderWindow : Window
@@ -27,7 +27,7 @@ public partial class ViewfinderWindow : Window
         {
             _scale = PresentationSource.FromVisual(this)?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
         };
-        // 크기 복원은 첫 레이아웃 이후에 — 칩 높이(FrameMarginY)가 그때야 실측된다.
+        // 크기 복원은 첫 레이아웃 이후에: 칩 높이(FrameMarginY)가 그때야 실측된다.
         // SourceInitialized 시점엔 ActualHeight=0이라 세션마다 안쪽 영역이 줄어드는 버그가 있었다.
         Loaded += (_, _) => { RestorePlacement(); SyncBoxes(); Activate(); };
         SizeChanged += (_, _) => SyncBoxes();

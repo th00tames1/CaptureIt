@@ -212,7 +212,7 @@ public partial class MainWindow : Window
     {
         if (!_reallyExit && S.ShowTrayIcon && _tray != null)
         {
-            // X 버튼 → 트레이로 최소화 (알캡처와 동일한 UX)
+            // X 버튼: 종료가 아니라 트레이로 최소화해 단축키 캡처를 계속 유지한다
             e.Cancel = true;
             SavePosition();
             Hide();
@@ -402,7 +402,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// 오버레이에서 고른 영역을 최종 이미지로 만든다.
     /// 딜레이가 없으면 이미 찍어둔 정지 이미지를 잘라 즉시 반환하고,
-    /// 딜레이가 있으면 카운트다운 뒤 그 영역의 '라이브' 화면을 캡처한다(알캡처와 동일).
+    /// 딜레이가 있으면 카운트다운 뒤 그 영역의 '라이브' 화면을 캡처한다.
     /// 카운트다운을 Esc로 취소하면 null.
     /// </summary>
     private async Task<BitmapSource?> ResolveSelectionAsync(BitmapSource frozen, Int32Rect rect)
@@ -640,7 +640,7 @@ public partial class MainWindow : Window
         finally { FinishCapture(canceled); }
     }
 
-    /// <summary>스크롤 캡처 진행 표시 토스트 — 캡처 영역과 겹치지 않는 모서리에 둔다.</summary>
+    /// <summary>스크롤 캡처 진행 표시 토스트: 캡처 영역과 겹치지 않는 모서리에 둔다.</summary>
     private static (Window toast, System.Windows.Controls.TextBlock text) CreateScrollToast(System.Drawing.Rectangle captureRect)
     {
         var text = new System.Windows.Controls.TextBlock
@@ -744,7 +744,7 @@ public partial class MainWindow : Window
     {
         if (S.PlaySound) CaptureService.PlayShutterSound();
 
-        // 모든 캡처는 목록에 쌓인다 — 언제든 다시 열어 편집 가능 (알캡처 벤치마크)
+        // 모든 캡처는 목록에 누적되어 언제든 다시 열어 편집할 수 있다
         // 스크롤 캡처처럼 큰 이미지도 UI가 멈추지 않게 인코딩은 백그라운드에서.
         // 250ms 이상 걸리면 "처리 중…" 토스트로 진행 상황을 보여준다.
         var item = await FeedbackService.WithBusyToastAsync(HistoryService.AddAsync(image));
@@ -760,7 +760,7 @@ public partial class MainWindow : Window
                 if (item != null) OpenEditor(item);
                 else
                 {
-                    // 히스토리 저장 실패(디스크 부족 등) — 캡처를 조용히 잃지 않는다
+                    // 히스토리 저장 실패(디스크 부족 등): 캡처를 조용히 잃지 않는다
                     if (!copied) copied = await CaptureService.CopyToClipboardAsync(image);
                     Notify(Loc.Get(copied ? "Main.Hint.HistorySaveFailed" : "Msg.CopyFailed"));
                 }

@@ -4,37 +4,37 @@
 
     <!-- Common -->
     <sys:String x:Key="App.Name">CaptureIt</sys:String>
-    <sys:String x:Key="App.Tagline">Screen capture made easy</sys:String>
+    <sys:String x:Key="App.Tagline">Screen capture tool</sys:String>
 
     <!-- Main window -->
     <sys:String x:Key="Main.Region">Region</sys:String>
     <sys:String x:Key="Main.Window">Window</sys:String>
     <sys:String x:Key="Main.Full">Full screen</sys:String>
-    <sys:String x:Key="Main.History">Captures</sys:String>
+    <sys:String x:Key="Main.History">Capture list</sys:String>
     <sys:String x:Key="Main.Delay">Delay</sys:String>
-    <sys:String x:Key="Main.Tip.Delay">Pick the area or window first, then the countdown runs and captures the live screen at that moment. Handy for capturing an open menu.</sys:String>
+    <sys:String x:Key="Main.Tip.Delay">Captures after the countdown ends, once a region or window is selected</sys:String>
     <sys:String x:Key="Main.DelayNow">None</sys:String>
     <sys:String x:Key="Main.Delay3">3 sec</sys:String>
     <sys:String x:Key="Main.Delay5">5 sec</sys:String>
     <sys:String x:Key="Main.Delay10">10 sec</sys:String>
-    <sys:String x:Key="Main.Tip.Region">Drag to capture any area of the screen</sys:String>
-    <sys:String x:Key="Main.Tip.Window">Capture a single window with one click</sys:String>
-    <sys:String x:Key="Main.Tip.Full">Capture the whole screen (with multiple monitors you can pick which one)</sys:String>
+    <sys:String x:Key="Main.Tip.Region">Drag to select the region to capture</sys:String>
+    <sys:String x:Key="Main.Tip.Window">Captures only the window you click</sys:String>
+    <sys:String x:Key="Main.Tip.Full">Captures the full screen (select the monitor if there are several)</sys:String>
     <sys:String x:Key="Full.All">All monitors</sys:String>
-    <sys:String x:Key="Full.Screen">Screen {0}</sys:String>
+    <sys:String x:Key="Full.Screen">Monitor {0}</sys:String>
     <sys:String x:Key="Full.Primary">(primary)</sys:String>
-    <sys:String x:Key="Main.Tip.History">Open the capture list: view and edit everything you captured</sys:String>
+    <sys:String x:Key="Main.Tip.History">Open the capture list: view and edit captured images</sys:String>
     <sys:String x:Key="Main.Tip.Folder">Open the save folder</sys:String>
     <sys:String x:Key="Main.Tip.Settings">Settings</sys:String>
     <sys:String x:Key="Main.Tip.About">About CaptureIt</sys:String>
     <sys:String x:Key="Main.Tip.Pin">Keep this window on top</sys:String>
     <sys:String x:Key="Main.Tip.Minimize">Minimize</sys:String>
     <sys:String x:Key="Main.Tip.Close">Close (keeps running in the tray)</sys:String>
-    <sys:String x:Key="Main.Hint.Default">Capture any time with the buttons or hotkeys. Closing keeps it running in the tray.</sys:String>
+    <sys:String x:Key="Main.Hint.Default">Capture with the buttons or hotkeys. CaptureIt keeps running in the tray when closed.</sys:String>
     <sys:String x:Key="Main.Hint.HotkeyFail">Could not register hotkeys for: {0}. Use the buttons instead.</sys:String>
     <sys:String x:Key="Main.Hint.Saved">Saved: {0}</sys:String>
-    <sys:String x:Key="Main.Hint.Copied">Copied to clipboard.</sys:String>
-    <sys:String x:Key="Main.Hint.HistorySaveFailed">Failed to save the capture: the image was copied to the clipboard instead.</sys:String>
+    <sys:String x:Key="Main.Hint.Copied">Copied to the clipboard.</sys:String>
+    <sys:String x:Key="Main.Hint.HistorySaveFailed">Could not save the capture. The image was copied to the clipboard.</sys:String>
     <sys:String x:Key="Word.Region">region</sys:String>
     <sys:String x:Key="Word.Window">window</sys:String>
     <sys:String x:Key="Word.Full">full screen</sys:String>
@@ -43,30 +43,30 @@
     <sys:String x:Key="Main.Element">Element</sys:String>
     <sys:String x:Key="Main.Scroll">Scrolling</sys:String>
     <sys:String x:Key="Main.Fixed">Fixed size</sys:String>
-    <sys:String x:Key="Main.Tip.Element">Capture a UI element (button, image, panel) with one click</sys:String>
-    <sys:String x:Key="Main.Tip.Scroll">Capture scrolling content like a long web page, stitched together</sys:String>
-    <sys:String x:Key="Main.Tip.Fixed">Pin a capture frame on screen and re-capture as the content changes</sys:String>
-    <sys:String x:Key="Overlay.ElementHint">Hover over any UI element and click to capture it  ·  Esc to cancel</sys:String>
-    <sys:String x:Key="Overlay.FixedHint">Drag edges to resize, drag inside to move  ·  Enter or double-click to capture  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Main.Tip.Element">Captures the UI element you click, such as a button, image, or panel</sys:String>
+    <sys:String x:Key="Main.Tip.Scroll">Captures a long web page or other scrolling content as one image</sys:String>
+    <sys:String x:Key="Main.Tip.Fixed">Pins a capture frame on screen and captures the same region repeatedly</sys:String>
+    <sys:String x:Key="Overlay.ElementHint">Hover over a UI element and click to capture it  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Overlay.FixedHint">Drag the edges or corners to resize  ·  Enter or double-click to capture  ·  Esc to cancel</sys:String>
     <sys:String x:Key="Overlay.CaptureBtn">Capture (Enter)</sys:String>
-    <sys:String x:Key="Overlay.ScrollHint">Click the window to scroll-capture: it scrolls to the bottom automatically  ·  Esc to cancel</sys:String>
-    <sys:String x:Key="Feedback.Countdown">Capturing in {0}s  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Overlay.ScrollHint">Click the window to scroll-capture. It scrolls to the bottom automatically  ·  Esc to cancel</sys:String>
+    <sys:String x:Key="Feedback.Countdown">Capturing in {0} sec  ·  Esc to cancel</sys:String>
     <sys:String x:Key="Feedback.Processing">Processing capture…</sys:String>
     <sys:String x:Key="Viewfinder.Capture">Capture</sys:String>
-    <sys:String x:Key="Viewfinder.Tip">The frame stays pinned on screen. Change what's underneath and press Capture (or Enter) to grab it again. Esc closes.</sys:String>
-    <sys:String x:Key="Scroll.Progress">Scroll capturing… frame {0}  ·  Esc to stop</sys:String>
-    <sys:String x:Key="Scroll.Failed">Scroll capture failed. Make sure you selected an area that actually scrolls.</sys:String>
+    <sys:String x:Key="Viewfinder.Tip">The capture frame stays pinned. Change the content, then press Capture or Enter  ·  Esc to close</sys:String>
+    <sys:String x:Key="Scroll.Progress">Scroll capture… images: {0}  ·  Esc to stop</sys:String>
+    <sys:String x:Key="Scroll.Failed">Scroll capture failed. Check that the selected region scrolls.</sys:String>
 
     <!-- Tray -->
     <sys:String x:Key="Tray.Open">Open</sys:String>
     <sys:String x:Key="Tray.RegionCapture">Capture region ({0})</sys:String>
     <sys:String x:Key="Tray.FullCapture">Capture full screen ({0})</sys:String>
-    <sys:String x:Key="Tray.RepeatCapture">Repeat last region ({0})</sys:String>
+    <sys:String x:Key="Tray.RepeatCapture">Capture last region again ({0})</sys:String>
     <sys:String x:Key="Tray.History">Capture list</sys:String>
     <sys:String x:Key="Tray.About">About</sys:String>
     <sys:String x:Key="Tray.Exit">Exit</sys:String>
     <sys:String x:Key="Tray.Tooltip">CaptureIt: screen capture</sys:String>
-    <sys:String x:Key="Tray.Background">Still running in the tray. Capture any time with the hotkeys.</sys:String>
+    <sys:String x:Key="Tray.Background">Running in the tray. Use the hotkeys to capture.</sys:String>
 
     <!-- Capture overlay -->
     <sys:String x:Key="Overlay.RegionHint">Drag to select the area to capture  ·  Esc to cancel</sys:String>
@@ -74,15 +74,15 @@
 
     <!-- Editor -->
     <sys:String x:Key="Editor.Title">CaptureIt Editor</sys:String>
-    <sys:String x:Key="Editor.NewCapture">New</sys:String>
-    <sys:String x:Key="Editor.Tip.NewCapture">Start a new capture using the last capture mode</sys:String>
+    <sys:String x:Key="Editor.NewCapture">New capture</sys:String>
+    <sys:String x:Key="Editor.Tip.NewCapture">Starts a new capture using the last capture mode</sys:String>
     <sys:String x:Key="Editor.Select">Select</sys:String>
     <sys:String x:Key="Editor.Pen">Pen</sys:String>
-    <sys:String x:Key="Editor.Highlight">Marker</sys:String>
+    <sys:String x:Key="Editor.Highlight">Highlighter</sys:String>
     <sys:String x:Key="Editor.Line">Line</sys:String>
     <sys:String x:Key="Editor.Arrow">Arrow</sys:String>
-    <sys:String x:Key="Editor.Rect">Box</sys:String>
-    <sys:String x:Key="Editor.Ellipse">Circle</sys:String>
+    <sys:String x:Key="Editor.Rect">Rectangle</sys:String>
+    <sys:String x:Key="Editor.Ellipse">Ellipse</sys:String>
     <sys:String x:Key="Editor.Text">Text</sys:String>
     <sys:String x:Key="Editor.Number">Number</sys:String>
     <sys:String x:Key="Editor.Mosaic">Pixelate</sys:String>
@@ -90,17 +90,17 @@
     <sys:String x:Key="Editor.Crop">Crop</sys:String>
     <sys:String x:Key="Editor.Tip.Select">Select / move (no drawing)</sys:String>
     <sys:String x:Key="Editor.Tip.Pen">Pen: draw freely</sys:String>
-    <sys:String x:Key="Editor.Tip.Highlight">Marker: translucent highlight</sys:String>
+    <sys:String x:Key="Editor.Tip.Highlight">Highlighter: translucent highlight</sys:String>
     <sys:String x:Key="Editor.Tip.Line">Draw a straight line</sys:String>
     <sys:String x:Key="Editor.Tip.Arrow">Draw an arrow</sys:String>
     <sys:String x:Key="Editor.Tip.Rect">Draw a rectangle</sys:String>
     <sys:String x:Key="Editor.Tip.Ellipse">Draw an ellipse</sys:String>
-    <sys:String x:Key="Editor.Tip.Text">Type text where you click</sys:String>
-    <sys:String x:Key="Editor.Tip.Number">Number stamp: ①②③ in order with each click</sys:String>
+    <sys:String x:Key="Editor.Tip.Text">Text: adds text at the point you click</sys:String>
+    <sys:String x:Key="Editor.Tip.Number">Number: stamp ①②③ in order with each click</sys:String>
     <sys:String x:Key="Editor.Tip.Mosaic">Pixelate: hide private information</sys:String>
-    <sys:String x:Key="Editor.Tip.Eraser">Eraser: click a drawing to remove it</sys:String>
-    <sys:String x:Key="Editor.Tip.Crop">Crop: keep only the dragged area</sys:String>
-    <sys:String x:Key="Editor.Thickness">Size</sys:String>
+    <sys:String x:Key="Editor.Tip.Eraser">Eraser: removes the annotation you click</sys:String>
+    <sys:String x:Key="Editor.Tip.Crop">Crop: keep only the dragged region</sys:String>
+    <sys:String x:Key="Editor.Thickness">Thickness</sys:String>
     <sys:String x:Key="Editor.Fill">Fill</sys:String>
     <sys:String x:Key="Editor.FillNone">No fill (transparent)</sys:String>
     <sys:String x:Key="Editor.Font">Font · size</sys:String>
@@ -110,23 +110,23 @@
     <sys:String x:Key="Editor.VeryThick">Extra thick</sys:String>
     <sys:String x:Key="Editor.Tip.Undo">Undo (Ctrl+Z)</sys:String>
     <sys:String x:Key="Editor.Tip.Redo">Redo (Ctrl+Y)</sys:String>
-    <sys:String x:Key="Editor.Tip.Reset">Clear all annotations</sys:String>
+    <sys:String x:Key="Editor.Tip.Reset">Reset: clears all annotations</sys:String>
     <sys:String x:Key="Editor.Copy">Copy</sys:String>
     <sys:String x:Key="Editor.SaveAs">Save as…</sys:String>
     <sys:String x:Key="Editor.Save">Save</sys:String>
     <sys:String x:Key="Editor.Tip.Copy">Copy to clipboard (Ctrl+C)</sys:String>
     <sys:String x:Key="Editor.Tip.SaveAs">Save with a custom name and location</sys:String>
     <sys:String x:Key="Editor.Tip.Save">Save to the save folder (Ctrl+S)</sys:String>
-    <sys:String x:Key="Editor.ZoomHint">(Ctrl+wheel to zoom)</sys:String>
+    <sys:String x:Key="Editor.ZoomHint">(Ctrl+wheel to zoom in and out)</sys:String>
     <sys:String x:Key="Editor.Status.Saved">Saved: {0}</sys:String>
-    <sys:String x:Key="Editor.Status.Copied">Copied to clipboard</sys:String>
-    <sys:String x:Key="Editor.Status.Cropped">Cropped</sys:String>
-    <sys:String x:Key="Editor.Status.Cleared">All annotations cleared</sys:String>
-    <sys:String x:Key="Editor.Status.ImageUndo">Reverted to the previous edit state (Ctrl+Y to reapply)</sys:String>
-    <sys:String x:Key="Editor.Status.ImageRedo">Edit reapplied</sys:String>
-    <sys:String x:Key="Editor.Status.SavedAll">Saved {0} captures to the save folder</sys:String>
-    <sys:String x:Key="Editor.Empty">No captures yet&#x0a;Click 'New' or use a hotkey to start capturing</sys:String>
-    <sys:String x:Key="Editor.SaveFailed">Could not save the image.</sys:String>
+    <sys:String x:Key="Editor.Status.Copied">Copied to the clipboard.</sys:String>
+    <sys:String x:Key="Editor.Status.Cropped">Image cropped.</sys:String>
+    <sys:String x:Key="Editor.Status.Cleared">All annotations cleared.</sys:String>
+    <sys:String x:Key="Editor.Status.ImageUndo">Reverted to the previous edit state (Ctrl+Y to reapply).</sys:String>
+    <sys:String x:Key="Editor.Status.ImageRedo">Edit reapplied.</sys:String>
+    <sys:String x:Key="Editor.Status.SavedAll">Images saved to the save folder: {0}</sys:String>
+    <sys:String x:Key="Editor.Empty">No captures yet&#x0a;Select New capture or press a hotkey to start</sys:String>
+    <sys:String x:Key="Editor.SaveFailed">Could not save the image. Choose another location.</sys:String>
     <sys:String x:Key="Editor.ResetConfirm">Clear all annotations on this capture?</sys:String>
     <sys:String x:Key="Editor.UnsavedSwitch">You have unsaved edits. Switch without saving?</sys:String>
     <sys:String x:Key="Editor.SaveAsTitle">Save as</sys:String>
@@ -136,7 +136,7 @@
 
     <!-- Capture list sidebar -->
     <sys:String x:Key="History.Title">Recent captures</sys:String>
-    <sys:String x:Key="History.Count">{0} / {1}</sys:String>
+    <sys:String x:Key="History.Count">{0} / {1} images</sys:String>
     <sys:String x:Key="History.SaveAll">Save all</sys:String>
     <sys:String x:Key="History.DeleteAll">Delete all</sys:String>
     <sys:String x:Key="History.Edit">Edit</sys:String>
@@ -144,7 +144,7 @@
     <sys:String x:Key="History.SaveItem">Save to folder</sys:String>
     <sys:String x:Key="History.Delete">Delete</sys:String>
     <sys:String x:Key="History.DeleteAllConfirm">Delete every capture in the list?&#x0a;(Files already saved to the save folder are kept)</sys:String>
-    <sys:String x:Key="History.Empty">Your captures will pile up here</sys:String>
+    <sys:String x:Key="History.Empty">Captured images appear here</sys:String>
 
     <!-- Settings -->
     <sys:String x:Key="Settings.Title">CaptureIt Settings</sys:String>
@@ -154,15 +154,15 @@
     <sys:String x:Key="Settings.SaveLocation">Save location</sys:String>
     <sys:String x:Key="Settings.Browse">Browse…</sys:String>
     <sys:String x:Key="Settings.FilePrefix">File name prefix:</sys:String>
-    <sys:String x:Key="Settings.PrefixExample">e.g. Capture_2026-07-19_1420.png</sys:String>
+    <sys:String x:Key="Settings.PrefixExample">Format: prefix_date_time.png</sys:String>
     <sys:String x:Key="Settings.Format">File format</sys:String>
-    <sys:String x:Key="Settings.FmtPng">PNG (recommended · best quality)</sys:String>
+    <sys:String x:Key="Settings.FmtPng">PNG (recommended · high quality)</sys:String>
     <sys:String x:Key="Settings.FmtJpg">JPG (smaller files)</sys:String>
-    <sys:String x:Key="Settings.AfterCapture">After capturing</sys:String>
-    <sys:String x:Key="Settings.ActEditor">Open the editor: draw, crop, save (recommended)</sys:String>
-    <sys:String x:Key="Settings.ActSave">Save immediately and copy to clipboard</sys:String>
-    <sys:String x:Key="Settings.ActCopy">Copy to clipboard only (no file)</sys:String>
-    <sys:String x:Key="Settings.Etc">More</sys:String>
+    <sys:String x:Key="Settings.AfterCapture">Action after capture</sys:String>
+    <sys:String x:Key="Settings.ActEditor">Open the editor: annotate, crop, save (recommended)</sys:String>
+    <sys:String x:Key="Settings.ActSave">Save immediately and copy to the clipboard</sys:String>
+    <sys:String x:Key="Settings.ActCopy">Copy to the clipboard only (no file saved)</sys:String>
+    <sys:String x:Key="Settings.Etc">Other</sys:String>
     <sys:String x:Key="Settings.AlwaysClipboard">Always copy captures to the clipboard</sys:String>
     <sys:String x:Key="Settings.HideOnCapture">Hide CaptureIt windows while capturing</sys:String>
     <sys:String x:Key="Settings.Sound">Play a capture sound</sys:String>
@@ -171,26 +171,26 @@
     <sys:String x:Key="Settings.HotkeyRegion">Capture region</sys:String>
     <sys:String x:Key="Settings.HotkeyWindow">Capture window</sys:String>
     <sys:String x:Key="Settings.HotkeyFull">Capture full screen</sys:String>
-    <sys:String x:Key="Settings.HotkeyRepeat">Repeat last region</sys:String>
+    <sys:String x:Key="Settings.HotkeyRepeat">Capture the same region again</sys:String>
     <sys:String x:Key="Settings.HotkeyElement">Capture element</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">Scroll capture</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">Fixed-size capture</sys:String>
     <sys:String x:Key="Settings.Cancel">Cancel</sys:String>
     <sys:String x:Key="Settings.Save">Save</sys:String>
-    <sys:String x:Key="Settings.FolderMissing">Please enter a save folder.</sys:String>
-    <sys:String x:Key="Settings.FolderCreateFail">That folder cannot be created. Please choose another location.</sys:String>
-    <sys:String x:Key="Settings.BrowseDesc">Choose a folder for captured images</sys:String>
+    <sys:String x:Key="Settings.FolderMissing">Enter a save folder.</sys:String>
+    <sys:String x:Key="Settings.FolderCreateFail">That folder cannot be created. Choose another location.</sys:String>
+    <sys:String x:Key="Settings.BrowseDesc">Choose a folder for captured images.</sys:String>
 
     <!-- About -->
     <sys:String x:Key="About.Title">About CaptureIt</sys:String>
     <sys:String x:Key="About.Version">Version {0}</sys:String>
-    <sys:String x:Key="About.Desc">An easy screen capture tool for everyone, benchmarked against ALCapture.&#x0a;Capture · annotate · pixelate · capture list, all in one.</sys:String>
-    <sys:String x:Key="About.Author">Created by Heechan Jeong</sys:String>
+    <sys:String x:Key="About.Desc">Screen capture and annotation tool.&#x0a;Capture · annotate · pixelate · capture list in one application.</sys:String>
+    <sys:String x:Key="About.Author">Developed by Heechan Jeong</sys:String>
     <sys:String x:Key="About.Copyright">© 2026 Heechan Jeong. All rights reserved.</sys:String>
     <sys:String x:Key="About.Close">Close</sys:String>
 
     <!-- Messages -->
-    <sys:String x:Key="Msg.Error">Something went wrong.</sys:String>
+    <sys:String x:Key="Msg.Error">The operation could not be completed.</sys:String>
     <sys:String x:Key="Msg.AlreadyRunning">CaptureIt is already running.&#x0a;Check the taskbar or the system tray.</sys:String>
-    <sys:String x:Key="Msg.CopyFailed">Could not copy to the clipboard. Please try again.</sys:String>
+    <sys:String x:Key="Msg.CopyFailed">Could not copy to the clipboard. Try again in a moment.</sys:String>
 </ResourceDictionary>

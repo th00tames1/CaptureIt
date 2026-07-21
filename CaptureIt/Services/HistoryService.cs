@@ -42,7 +42,7 @@ public class HistoryItem : INotifyPropertyChanged
                 Task.Run(() =>
                 {
                     var bmp = LoadBitmap(decodeWidth: 220);   // Freeze되어 스레드 간 공유 안전
-                    if (version != _thumbVersion) return;     // 그 사이 Invalidate됨 — 낡은 결과 폐기
+                    if (version != _thumbVersion) return;     // 그 사이 Invalidate됨: 낡은 결과 폐기
                     if (bmp == null)
                     {
                         // 실패를 알리면 바인딩이 다시 getter를 읽어 무한 재시도가 되므로 조용히 멈춘다
@@ -70,7 +70,7 @@ public class HistoryItem : INotifyPropertyChanged
     {
         try
         {
-            // 파일은 바이트로 짧게 읽고 디코딩은 메모리에서 — 디코딩(수백 ms) 동안
+            // 파일은 바이트로 짧게 읽고 디코딩은 메모리에서: 디코딩(수백 ms) 동안
             // 파일 핸들을 잡지 않아 저장/undo의 쓰기와 충돌하지 않는다.
             var bytes = HistoryService.ReadFileWithRetry(FilePath);
             if (bytes == null) return null;
@@ -101,7 +101,7 @@ public class HistoryItem : INotifyPropertyChanged
 }
 
 /// <summary>
-/// 캡처 목록(최근 캡처) 저장소. 알캡처의 '최근 캡처 목록'을 벤치마크.
+/// 캡처 목록(최근 캡처) 저장소.
 /// 모든 캡처는 자동으로 여기에 쌓이고 언제든 다시 열어 편집할 수 있다.
 /// </summary>
 public static class HistoryService
@@ -110,7 +110,7 @@ public static class HistoryService
 
     public static ObservableCollection<HistoryItem> Items { get; } = new();
 
-    /// <summary>편집기에서 열어 둔 항목 — 100장 초과 정리에서 제외해 편집 중 작업을 보호한다.</summary>
+    /// <summary>편집기에서 열어 둔 항목: 100장 초과 정리에서 제외해 편집 중 작업을 보호한다.</summary>
     public static HistoryItem? Pinned { get; set; }
 
     private static string Dir =>
@@ -150,7 +150,7 @@ public static class HistoryService
         try
         {
             Directory.CreateDirectory(Dir);
-            // 임시 파일에 쓴 뒤 교체 — 도중에 크래시/디스크 풀이어도 기존 인덱스가 살아남는다
+            // 임시 파일에 쓴 뒤 교체: 도중에 크래시/디스크 풀이어도 기존 인덱스가 살아남는다
             var tmp = IndexPath + ".tmp";
             File.WriteAllText(tmp, JsonSerializer.Serialize(Items.ToList(), JsonOpts));
             File.Move(tmp, IndexPath, overwrite: true);
@@ -247,7 +247,7 @@ public static class HistoryService
             }
 
             var prev = File.Exists(item.FilePath) ? ReadFileWithRetry(item.FilePath) : null;
-            if (!WriteFileWithRetry(item.FilePath, bytes)) return;   // 실패 — 파일·스택 모두 무손상
+            if (!WriteFileWithRetry(item.FilePath, bytes)) return;   // 실패: 파일·스택 모두 무손상
 
             if (prev != null) PushImageUndo(item, prev);
             item.Width = image.PixelWidth;

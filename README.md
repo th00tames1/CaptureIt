@@ -2,8 +2,8 @@
 
 [한국어](README.ko.md)
 
-Easy screen capture for everyone — a full-featured Windows app (WPF) plus a
-cross-platform edition for Linux and macOS (Avalonia).
+A screen capture and annotation tool for Windows (WPF), with a cross-platform
+edition for Linux and macOS (Avalonia).
 Made by **Heechan Jeong** · MIT License
 
 ![Windows editor](docs/screenshot-editor.png)
@@ -14,7 +14,7 @@ Made by **Heechan Jeong** · MIT License
 
 | OS | File | How to install |
 |---|---|---|
-| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | Run it — that's all (no admin rights needed) |
+| **Windows 10/11** | [`CaptureIt-Setup-win-x64.exe`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Setup-win-x64.exe) | Run the installer. No administrator rights required. |
 | Windows (portable) | [`CaptureIt-Portable-win-x64.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-Portable-win-x64.zip) | Unzip and run the exe |
 | **Linux x64** | [`CaptureIt-linux-x64.tar.gz`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-linux-x64.tar.gz) | Extract, then `./install.sh` |
 | **macOS (Apple Silicon)** | [`CaptureIt-macos-apple-silicon.zip`](https://github.com/th00tames1/CaptureIt/releases/latest/download/CaptureIt-macos-apple-silicon.zip) | Unzip → **right-click → Open** |
@@ -23,7 +23,7 @@ Made by **Heechan Jeong** · MIT License
 > **Windows SmartScreen**: because CaptureIt is a new open-source app without a paid
 > code-signing certificate, Windows may show *"Windows protected your PC"* on first run.
 > Click **More info → Run anyway**. The full source code is in this repository, and every
-> release binary is built publicly by GitHub Actions from that source — you can audit the
+> release binary is built publicly by GitHub Actions from that source, so you can audit the
 > [build workflow](.github/workflows/release.yml) yourself. The warning disappears
 > automatically as the download count builds reputation with Microsoft.
 >
@@ -32,7 +32,7 @@ Made by **Heechan Jeong** · MIT License
 > **Linux**: needs one of `gnome-screenshot` / `spectacle` / `grim`+`slurp` / `scrot` /
 > ImageMagick (most distros ship one by default). Clipboard needs `wl-clipboard` (Wayland) or `xclip` (X11).
 
-## Windows edition — features
+## Windows edition: features
 
 ![Windows main toolbar](docs/screenshot-main.png)
 
@@ -55,7 +55,7 @@ Made by **Heechan Jeong** · MIT License
 ### Recent captures
 
 - Every capture lands in the history list (up to 100, persisted across restarts)
-- Thumbnails in the editor sidebar — click any item to edit it again at any time
+- Thumbnails in the editor sidebar. Click any item to reopen it for editing.
 - In-progress annotations are auto-baked into the item when you switch away
 - `Ctrl+C` directly on a list item → paste anywhere (image for chats/documents, file for Explorer/messengers)
 - Even baked edits (flatten/crop/save) can be stepped back with `Ctrl+Z` / reapplied with `Ctrl+Y` (8 steps per item)
@@ -80,7 +80,7 @@ Made by **Heechan Jeong** · MIT License
 ![Cross-platform edition](docs/screenshot-cross.png)
 
 A lean Avalonia edition. Screen grabbing is delegated to the OS-native screenshot
-tool (`screencapture` on macOS, `gnome-screenshot`/`grim`/… on Linux) — the OS
+tool (`screencapture` on macOS, `gnome-screenshot`/`grim` and similar on Linux), so the OS
 handles Wayland, multi-monitor and permissions best.
 
 | Feature | Support |
