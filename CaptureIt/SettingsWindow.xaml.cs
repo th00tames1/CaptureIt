@@ -69,6 +69,8 @@ public partial class SettingsWindow : Window
         ActSave.IsChecked = S.AfterCapture == AfterCaptureAction.SaveAndCopy;
         ActCopy.IsChecked = S.AfterCapture == AfterCaptureAction.CopyOnly;
 
+        ChkAutoUpdate.IsChecked = S.AutoUpdateCheck;
+        TxtCurrentVersion.Text = Loc.F("Settings.CurrentVersion", "v" + Services.UpdateService.CurrentVersion);
         ChkClipboard.IsChecked = S.AlwaysCopyToClipboard;
         ChkHide.IsChecked = S.HideMainWindowOnCapture;
         ChkSound.IsChecked = S.PlaySound;
@@ -110,6 +112,7 @@ public partial class SettingsWindow : Window
         S.AfterCapture = ActSave.IsChecked == true ? AfterCaptureAction.SaveAndCopy
                        : ActCopy.IsChecked == true ? AfterCaptureAction.CopyOnly
                        : AfterCaptureAction.OpenEditor;
+        S.AutoUpdateCheck = ChkAutoUpdate.IsChecked == true;
         S.AlwaysCopyToClipboard = ChkClipboard.IsChecked == true;
         S.HideMainWindowOnCapture = ChkHide.IsChecked == true;
         S.PlaySound = ChkSound.IsChecked == true;
@@ -150,6 +153,37 @@ public partial class SettingsWindow : Window
 
         DialogResult = true;
         Close();
+    }
+
+    /// <summary>수동 업데이트 확인: 최신이면 안내, 새 버전이면 팝업 (건너뛴 버전도 다시 보여준다).</summary>
+    private async void CheckNow_Click(object sender, RoutedEventArgs e)
+    {
+        BtnCheckNow.IsEnabled = false;
+        TxtUpdateStatus.Text = Loc.Get("Update.Checking");
+        try
+        {
+            S.LastUpdateCheck = DateTime.Now;
+            S.Save();
+            var info = await Services.UpdateService.CheckAsync(throwOnError: true);
+            if (info == null)
+            {
+                TxtUpdateStatus.Text = Loc.Get("Update.UpToDate");
+            }
+            else
+            {
+                TxtUpdateStatus.Text = "";
+                var win = new UpdateWindow(info) { Owner = this, Topmost = false };
+                win.ShowDialog();
+            }
+        }
+        catch
+        {
+            TxtUpdateStatus.Text = Loc.Get("Update.CheckFailed");
+        }
+        finally
+        {
+            BtnCheckNow.IsEnabled = true;
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

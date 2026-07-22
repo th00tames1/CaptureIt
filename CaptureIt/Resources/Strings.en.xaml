@@ -174,6 +174,25 @@
     <sys:String x:Key="Settings.HotkeyRepeat">Capture the same region again</sys:String>
     <sys:String x:Key="Settings.HotkeyHint">Click a field and press the key combination you want. Press Backspace to disable that hotkey. Changes apply when you save.</sys:String>
     <sys:String x:Key="Settings.HotkeyDup">This hotkey is assigned more than once: {0}</sys:String>
+
+    <!-- Updates -->
+    <sys:String x:Key="Settings.Updates">Updates</sys:String>
+    <sys:String x:Key="Settings.AutoUpdate">Check for updates automatically (once a day)</sys:String>
+    <sys:String x:Key="Settings.CheckNow">Check now</sys:String>
+    <sys:String x:Key="Settings.CurrentVersion">Current version {0}</sys:String>
+    <sys:String x:Key="Update.Title">Update</sys:String>
+    <sys:String x:Key="Update.Available">A new version is available</sys:String>
+    <sys:String x:Key="Update.Versions">{0} (current {1})</sys:String>
+    <sys:String x:Key="Update.ViewNotes">View release notes</sys:String>
+    <sys:String x:Key="Update.Now">Update now</sys:String>
+    <sys:String x:Key="Update.Later">Later</sys:String>
+    <sys:String x:Key="Update.Skip">Skip this version</sys:String>
+    <sys:String x:Key="Update.Downloading">Downloading… {0}%</sys:String>
+    <sys:String x:Key="Update.Installing">Starting the installer…</sys:String>
+    <sys:String x:Key="Update.Failed">The update could not be downloaded. Try again later.</sys:String>
+    <sys:String x:Key="Update.Checking">Checking…</sys:String>
+    <sys:String x:Key="Update.UpToDate">You are up to date.</sys:String>
+    <sys:String x:Key="Update.CheckFailed">Could not check for updates. Check your network connection.</sys:String>
     <sys:String x:Key="Settings.HotkeyElement">Capture element</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">Scroll capture</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">Fixed-size capture</sys:String>

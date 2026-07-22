@@ -38,6 +38,11 @@ public class AppSettings
     public bool RunAtStartup { get; set; } = true;      // Windows 시작 시 자동 실행
     public bool MainTopmost { get; set; } = false;      // 메인 툴바 항상 위
 
+    // 업데이트 확인
+    public bool AutoUpdateCheck { get; set; } = true;    // 시작 시 자동 확인 (하루 1회)
+    public DateTime? LastUpdateCheck { get; set; }
+    public string SkippedVersion { get; set; } = "";     // '이 버전 건너뛰기'로 무시한 버전
+
     // 전역 단축키 (Ctrl+Shift+A 형식, 빈 문자열 = 사용 안 함). 설정에서 변경 가능.
     public string HotkeyRegion { get; set; } = "Ctrl+Shift+A";
     public string HotkeyElement { get; set; } = "Ctrl+Shift+E";

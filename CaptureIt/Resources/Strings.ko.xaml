@@ -174,6 +174,25 @@
     <sys:String x:Key="Settings.HotkeyRepeat">같은 영역 다시 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyHint">입력란을 클릭한 뒤 원하는 키 조합을 누르세요. Backspace를 누르면 해당 단축키를 사용하지 않습니다. 저장 시 즉시 적용됩니다.</sys:String>
     <sys:String x:Key="Settings.HotkeyDup">단축키가 중복되었습니다: {0}</sys:String>
+
+    <!-- 업데이트 -->
+    <sys:String x:Key="Settings.Updates">업데이트</sys:String>
+    <sys:String x:Key="Settings.AutoUpdate">새 버전 자동 확인 (하루 1회)</sys:String>
+    <sys:String x:Key="Settings.CheckNow">지금 확인</sys:String>
+    <sys:String x:Key="Settings.CurrentVersion">현재 버전 {0}</sys:String>
+    <sys:String x:Key="Update.Title">업데이트</sys:String>
+    <sys:String x:Key="Update.Available">새 버전을 사용할 수 있습니다</sys:String>
+    <sys:String x:Key="Update.Versions">{0} (현재 {1})</sys:String>
+    <sys:String x:Key="Update.ViewNotes">변경 내용 보기</sys:String>
+    <sys:String x:Key="Update.Now">지금 업데이트</sys:String>
+    <sys:String x:Key="Update.Later">나중에</sys:String>
+    <sys:String x:Key="Update.Skip">이 버전 건너뛰기</sys:String>
+    <sys:String x:Key="Update.Downloading">다운로드 중… {0}%</sys:String>
+    <sys:String x:Key="Update.Installing">설치 프로그램을 시작합니다…</sys:String>
+    <sys:String x:Key="Update.Failed">업데이트 다운로드에 실패했습니다. 잠시 후 다시 시도하세요.</sys:String>
+    <sys:String x:Key="Update.Checking">확인 중…</sys:String>
+    <sys:String x:Key="Update.UpToDate">최신 버전을 사용 중입니다.</sys:String>
+    <sys:String x:Key="Update.CheckFailed">업데이트 확인에 실패했습니다. 네트워크 연결을 확인하세요.</sys:String>
     <sys:String x:Key="Settings.HotkeyElement">화면 요소 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">스크롤 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">고정 크기 캡처</sys:String>

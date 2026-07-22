@@ -60,6 +60,7 @@ public partial class MainWindow : Window
     {
         EnsureHotkeys();
         if (S.ShowTrayIcon) EnsureTray();
+        _ = AutoUpdateCheckAsync();
     }
 
     /// <summary>--autostart: 창을 띄우지 않고 트레이+단축키만 준비한다.</summary>
@@ -67,6 +68,39 @@ public partial class MainWindow : Window
     {
         EnsureHotkeys();
         EnsureTray();
+        _ = AutoUpdateCheckAsync();
+    }
+
+    // ── 업데이트 자동 확인 (하루 1회) ─────────────────────────────────────
+    private bool _updateCheckStarted;
+    private UpdateWindow? _updateWindow;   // GC로 창이 수거되지 않도록 참조 유지
+
+    private async Task AutoUpdateCheckAsync()
+    {
+        if (_updateCheckStarted) return;
+        _updateCheckStarted = true;
+
+        if (!S.AutoUpdateCheck) return;
+        if (S.LastUpdateCheck is { } last && DateTime.Now - last < TimeSpan.FromHours(24)) return;
+
+        await Task.Delay(TimeSpan.FromSeconds(8));   // 시작 직후의 부하·네트워크 경합 회피
+        S.LastUpdateCheck = DateTime.Now;
+        S.Save();
+
+        var info = await UpdateService.CheckAsync();
+        if (info == null || info.TagName == S.SkippedVersion) return;
+        ShowUpdatePopup(info);
+    }
+
+    /// <summary>업데이트 안내 팝업을 띄운다 (자동·수동 공통).</summary>
+    private void ShowUpdatePopup(UpdateService.UpdateInfo info)
+    {
+        _updateWindow?.Close();
+        _updateWindow = new UpdateWindow(info);
+        _updateWindow.Closed += (_, _) => _updateWindow = null;
+        if (IsVisible) _updateWindow.Owner = this;
+        _updateWindow.Show();
+        _updateWindow.Activate();
     }
 
     private void UpdateHistoryCount() =>

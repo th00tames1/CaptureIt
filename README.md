@@ -76,6 +76,7 @@ Made by **Heechan Jeong** · MIT License
 - English/Korean UI switch · run at Windows startup · lives in the tray
 - Auto-copies each capture to the clipboard (bitmap + PNG + file at once)
 - Window-overlap-free placement, pin-on-top toolbar, remembered positions
+- In-app updates: checks GitHub for new releases and installs them in one click (Settings → Updates, or the pop-up when a new version ships)
 
 ## Cross-platform edition (Linux · macOS)
 

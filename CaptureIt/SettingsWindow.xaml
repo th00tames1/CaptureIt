@@ -146,6 +146,27 @@
                                    Foreground="{StaticResource TextSub}" Margin="0,10,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+
+                <!-- 업데이트 -->
+                <TextBlock Text="{DynamicResource Settings.Updates}" FontWeight="Bold" FontSize="13"
+                           Foreground="{StaticResource TextMain}" Margin="0,12,0,0"/>
+                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="12" Margin="0,8,0,4"
+                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                    <StackPanel>
+                        <CheckBox x:Name="ChkAutoUpdate" Content="{DynamicResource Settings.AutoUpdate}" FontSize="12"/>
+                        <Grid Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="TxtCurrentVersion" FontSize="12"
+                                           Foreground="{StaticResource TextSub}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtUpdateStatus" FontSize="12" Margin="12,0,0,0"
+                                           Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Button x:Name="BtnCheckNow" Style="{StaticResource GhostButton}"
+                                    HorizontalAlignment="Right" Click="CheckNow_Click"
+                                    Content="{DynamicResource Settings.CheckNow}" FontSize="12"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 

@@ -26,6 +26,9 @@ SolidCompression=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
+; 인앱 업데이트: 실행 중인 이전 버전을 닫고 교체한다
+CloseApplications=yes
+RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -38,7 +41,8 @@ Name: "{autoprograms}\CaptureIt"; Filename: "{app}\CaptureIt.exe"
 Name: "{autodesktop}\CaptureIt"; Filename: "{app}\CaptureIt.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\CaptureIt.exe"; Description: "{cm:LaunchProgram,CaptureIt}"; Flags: nowait postinstall skipifsilent
+; skipifsilent 없음: 인앱 업데이트(/SILENT) 후에도 자동으로 다시 실행된다
+Filename: "{app}\CaptureIt.exe"; Description: "{cm:LaunchProgram,CaptureIt}"; Flags: nowait postinstall
 
 [UninstallRun]
 ; 실행 중이면 종료
