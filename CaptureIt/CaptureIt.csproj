@@ -13,7 +13,7 @@
     <NoWarn>$(NoWarn);WFAC010</NoWarn>
     <AssemblyTitle>CaptureIt</AssemblyTitle>
     <Product>CaptureIt</Product>
-    <Version>2.1.10</Version>
+    <Version>2.1.11</Version>
     <Copyright>© 2026 Heechan Jeong</Copyright>
     <Authors>Heechan Jeong</Authors>
     <ApplicationIcon>app.ico</ApplicationIcon>

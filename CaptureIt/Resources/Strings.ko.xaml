@@ -107,6 +107,9 @@
     <sys:String x:Key="Editor.Tip.Eraser">지우개: 주석을 클릭해 지웁니다</sys:String>
     <sys:String x:Key="Editor.Tip.Crop">자르기: 드래그한 영역만 남깁니다</sys:String>
     <sys:String x:Key="Editor.Thickness">굵기</sys:String>
+    <sys:String x:Key="Editor.Color">색</sys:String>
+    <sys:String x:Key="Editor.Tip.Color">그리기 색 — 눌러서 선택</sys:String>
+    <sys:String x:Key="Editor.Tip.Fill">채우기 색 — 눌러서 선택</sys:String>
     <sys:String x:Key="Editor.Fill">채우기</sys:String>
     <sys:String x:Key="Editor.FillNone">채우기 없음 (투명)</sys:String>
     <sys:String x:Key="Editor.Font">글꼴 · 크기</sys:String>

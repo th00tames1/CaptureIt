@@ -167,6 +167,31 @@
             </Setter>
         </Style>
 
+        <!-- ── 색 선택 드롭다운 버튼: 현재 색 미리보기 + 캐럿 (누르면 팔레트 팝업) ── -->
+        <Style x:Key="SwatchDropdown" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6"
+                                Padding="5,3" BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                                <Path Data="M0,0 L3.5,3.5 L7,0" Stroke="{StaticResource TextSub}" StrokeThickness="1.3"
+                                      Margin="5,0,0,0" VerticalAlignment="Center" Fill="Transparent"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- ── 투명(체크무늬) 브러시: '채우기 없음' 스와치용 ── -->
         <DrawingBrush x:Key="CheckerBrush" TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
             <DrawingBrush.Drawing>

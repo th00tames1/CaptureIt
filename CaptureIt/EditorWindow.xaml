@@ -186,20 +186,38 @@
 
                     <Rectangle Width="1" Height="42" Fill="{StaticResource BorderSoft}" Margin="7,0"/>
 
-                    <!-- 색상 -->
-                    <StackPanel VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#EF4444" Tag="#EF4444" IsChecked="True" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#F97316" Tag="#F97316" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#FACC15" Tag="#FACC15" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#22C55E" Tag="#22C55E" Checked="Color_Checked"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#2D7DF6" Tag="#2D7DF6" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#8B5CF6" Tag="#8B5CF6" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#111827" Tag="#111827" Checked="Color_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#FFFFFF" Tag="#FFFFFF" Checked="Color_Checked"/>
-                        </StackPanel>
+                    <!-- 색상: 현재 색 하나만 보이고, 누르면 팔레트 팝업이 뜬다 (가로 공간 절약) -->
+                    <StackPanel VerticalAlignment="Center" Margin="4,0,0,0">
+                        <TextBlock Text="{DynamicResource Editor.Color}" FontSize="9" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
+                        <Button x:Name="BtnColorPicker" Style="{StaticResource SwatchDropdown}" Margin="0,3,0,0"
+                                Click="OpenColorPopup" ToolTip="{DynamicResource Editor.Tip.Color}">
+                            <Ellipse x:Name="ColorPreview" Width="18" Height="18" Stroke="#D0D5DD" StrokeThickness="1" Fill="#EF4444"/>
+                        </Button>
+                        <Popup x:Name="PopupColor" StaysOpen="False" AllowsTransparency="True" Closed="Palette_Closed"
+                               PlacementTarget="{Binding ElementName=BtnColorPicker}" Placement="Bottom" VerticalOffset="4">
+                            <Grid Margin="12">
+                                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="9"
+                                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="1.5" Opacity="0.22" Color="#1F2937"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#EF4444" Tag="#EF4444" IsChecked="True" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#F97316" Tag="#F97316" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#FACC15" Tag="#FACC15" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#22C55E" Tag="#22C55E" Checked="Color_Checked"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#2D7DF6" Tag="#2D7DF6" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#8B5CF6" Tag="#8B5CF6" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#111827" Tag="#111827" Checked="Color_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Color" Background="#FFFFFF" Tag="#FFFFFF" Checked="Color_Checked"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Popup>
                     </StackPanel>
 
                     <!-- 굵기: 실제 선 두께 미리보기로 선택 -->
@@ -209,23 +227,41 @@
                                   SelectionChanged="Thickness_Changed"/>
                     </StackPanel>
 
-                    <!-- 채우기 색: 사각형/원 도구에서만 표시 -->
-                    <StackPanel x:Name="FillGroup" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed">
+                    <!-- 채우기 색: 사각형/원 도구에서만 표시. 색 하나만 보이고 누르면 팔레트 팝업 -->
+                    <StackPanel x:Name="FillGroup" VerticalAlignment="Center" Margin="8,0,0,0" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Editor.Fill}" FontSize="9" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="{StaticResource CheckerBrush}"
-                                         Tag="transparent" IsChecked="True" Checked="Fill_Checked" ToolTip="{DynamicResource Editor.FillNone}"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#EF4444" Tag="#EF4444" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#F97316" Tag="#F97316" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#FACC15" Tag="#FACC15" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#22C55E" Tag="#22C55E" Checked="Fill_Checked"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#2D7DF6" Tag="#2D7DF6" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#8B5CF6" Tag="#8B5CF6" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#111827" Tag="#111827" Checked="Fill_Checked"/>
-                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#FFFFFF" Tag="#FFFFFF" Checked="Fill_Checked"/>
-                        </StackPanel>
+                        <Button x:Name="BtnFillPicker" Style="{StaticResource SwatchDropdown}" Margin="0,3,0,0"
+                                Click="OpenFillPopup" ToolTip="{DynamicResource Editor.Tip.Fill}">
+                            <Ellipse x:Name="FillPreview" Width="18" Height="18" Stroke="#D0D5DD" StrokeThickness="1"
+                                     Fill="{StaticResource CheckerBrush}"/>
+                        </Button>
+                        <Popup x:Name="PopupFill" StaysOpen="False" AllowsTransparency="True" Closed="Palette_Closed"
+                               PlacementTarget="{Binding ElementName=BtnFillPicker}" Placement="Bottom" VerticalOffset="4">
+                            <Grid Margin="12">
+                                <Border Background="{StaticResource CardBg}" CornerRadius="10" Padding="9"
+                                        BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="1.5" Opacity="0.22" Color="#1F2937"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="{StaticResource CheckerBrush}"
+                                                         Tag="transparent" IsChecked="True" Checked="Fill_Checked" ToolTip="{DynamicResource Editor.FillNone}"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#EF4444" Tag="#EF4444" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#F97316" Tag="#F97316" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#FACC15" Tag="#FACC15" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#22C55E" Tag="#22C55E" Checked="Fill_Checked"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#2D7DF6" Tag="#2D7DF6" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#8B5CF6" Tag="#8B5CF6" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#111827" Tag="#111827" Checked="Fill_Checked"/>
+                                            <RadioButton Style="{StaticResource ColorSwatch}" GroupName="Fill" Background="#FFFFFF" Tag="#FFFFFF" Checked="Fill_Checked"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Popup>
                     </StackPanel>
 
                     <!-- 글꼴/크기: 텍스트 도구에서만 표시. 입력 중인 텍스트박스에 즉시 반영 -->

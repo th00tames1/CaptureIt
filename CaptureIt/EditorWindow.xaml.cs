@@ -297,13 +297,41 @@ public partial class EditorWindow : Window
             _color = (Color)ColorConverter.ConvertFromString(hex);
             if (_activeTextBox != null) _activeTextBox.Foreground = new SolidColorBrush(_color);
             if (DrawCanvas != null && _tool is Tool.Pen or Tool.Highlight) UpdateToolCursor();
+            if (ColorPreview != null) ColorPreview.Fill = new SolidColorBrush(_color);   // 미리보기 갱신
+            if (PopupColor != null) PopupColor.IsOpen = false;                            // 고르면 닫힌다
         }
     }
 
     private void Fill_Checked(object sender, RoutedEventArgs e)
     {
         if (sender is RadioButton { Tag: string tag })
+        {
             _fillColor = tag == "transparent" ? null : (Color)ColorConverter.ConvertFromString(tag);
+            if (FillPreview != null)
+                FillPreview.Fill = _fillColor is Color c
+                    ? new SolidColorBrush(c)
+                    : (Brush)FindResource("CheckerBrush");   // 투명이면 체크무늬 미리보기
+            if (PopupFill != null) PopupFill.IsOpen = false;
+        }
+    }
+
+    // ── 색 팔레트 팝업 ─────────────────────────────────────────────────────
+    // 팝업이 열린 상태에서 버튼을 다시 누르면, StaysOpen=False가 먼저 팝업을 닫고
+    // 이어서 Click이 다시 열어 버린다. 방금 닫혔으면 열지 않아 이 재열림을 막는다.
+    private DateTime _paletteClosedAt;
+
+    private void Palette_Closed(object? sender, EventArgs e) => _paletteClosedAt = DateTime.UtcNow;
+
+    private void OpenColorPopup(object sender, RoutedEventArgs e)
+    {
+        if ((DateTime.UtcNow - _paletteClosedAt).TotalMilliseconds < 200) return;
+        PopupColor.IsOpen = true;
+    }
+
+    private void OpenFillPopup(object sender, RoutedEventArgs e)
+    {
+        if ((DateTime.UtcNow - _paletteClosedAt).TotalMilliseconds < 200) return;
+        PopupFill.IsOpen = true;
     }
 
     private static readonly double[] ThicknessChoices = { 1, 2, 3, 4, 6, 8, 12, 16, 24 };

@@ -107,6 +107,9 @@
     <sys:String x:Key="Editor.Tip.Eraser">Eraser: removes the annotation you click</sys:String>
     <sys:String x:Key="Editor.Tip.Crop">Crop: keep only the dragged region</sys:String>
     <sys:String x:Key="Editor.Thickness">Thickness</sys:String>
+    <sys:String x:Key="Editor.Color">Color</sys:String>
+    <sys:String x:Key="Editor.Tip.Color">Drawing color — click to choose</sys:String>
+    <sys:String x:Key="Editor.Tip.Fill">Fill color — click to choose</sys:String>
     <sys:String x:Key="Editor.Fill">Fill</sys:String>
     <sys:String x:Key="Editor.FillNone">No fill (transparent)</sys:String>
     <sys:String x:Key="Editor.Font">Font · size</sys:String>
