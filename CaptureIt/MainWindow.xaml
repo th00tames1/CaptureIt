@@ -5,11 +5,11 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" WindowStartupLocation="Manual"
         FontFamily="Malgun Gothic" UseLayoutRounding="True">
+    <!-- 둥근 모서리 카드. WindowStyle=None + 투명 배경에서는 창 밖으로 번지는 DropShadow가
+         창 사각형에서 잘려 네 꼭짓점에 회색 쐐기로 남는다(레이어드 창의 알파 클리핑).
+         그래서 그림자는 쓰지 않고 옅은 테두리로만 구분한다. -->
     <Border Background="{StaticResource CardBg}" CornerRadius="14"
             BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="2" Opacity="0.18" Color="#1F2937"/>
-        </Border.Effect>
         <Grid Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="34"/>
@@ -90,21 +90,21 @@
                 <!-- 영역 캡처 -->
                 <Button x:Name="BtnRegion" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="RegionCapture_Click" ToolTip="{DynamicResource Main.Tip.Region}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="2" Canvas.Top="4" Width="26" Height="22" RadiusX="3" RadiusY="3"
                                        Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8" StrokeDashArray="2.2 1.6"/>
                             <Path Data="M15,10 L15,20 M10,15 L20,15" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Region}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblRegionKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblRegionKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 단위 영역 -->
                 <Button x:Name="BtnElement" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="ElementCapture_Click" ToolTip="{DynamicResource Main.Tip.Element}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="2" Canvas.Top="4" Width="26" Height="22" RadiusX="3" RadiusY="3"
                                        Stroke="#9AA6B8" StrokeThickness="1.6"/>
@@ -114,14 +114,14 @@
                                   Fill="{StaticResource PrimaryBrush}" Stroke="White" StrokeThickness="0.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Element}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblElementKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblElementKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 창 캡처 -->
                 <Button x:Name="BtnWindow" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="WindowCapture_Click" ToolTip="{DynamicResource Main.Tip.Window}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="3" Canvas.Top="5" Width="24" Height="20" RadiusX="3" RadiusY="3"
                                        Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
@@ -130,14 +130,14 @@
                             <Ellipse Canvas.Left="10" Canvas.Top="7.2" Width="2.5" Height="2.5" Fill="{StaticResource PrimaryBrush}"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Window}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblWindowKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblWindowKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 전체 캡처 -->
                 <Button x:Name="BtnFull" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="FullCapture_Click" ToolTip="{DynamicResource Main.Tip.Full}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="2" Canvas.Top="4" Width="26" Height="18" RadiusX="3" RadiusY="3"
                                        Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
@@ -145,14 +145,14 @@
                             <Line X1="9" Y1="26.5" X2="21" Y2="26.5" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Full}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblFullKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblFullKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 스크롤 캡처 -->
                 <Button x:Name="BtnScroll" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="ScrollCapture_Click" ToolTip="{DynamicResource Main.Tip.Scroll}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="5" Canvas.Top="2" Width="20" Height="26" RadiusX="3" RadiusY="3"
                                        Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8"/>
@@ -162,14 +162,14 @@
                                   Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Scroll}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblScrollKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblScrollKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 고정 크기 캡처 -->
                 <Button x:Name="BtnFixed" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="FixedCapture_Click" ToolTip="{DynamicResource Main.Tip.Fixed}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Path Data="M2,8 L2,3 L8,3 M22,3 L28,3 L28,8 M28,20 L28,25 L22,25 M8,25 L2,25 L2,20"
                                   Stroke="{StaticResource PrimaryBrush}" StrokeThickness="1.8" Fill="Transparent"/>
@@ -177,14 +177,14 @@
                                        Stroke="#9AA6B8" StrokeThickness="1.6" StrokeDashArray="2.4 1.8"/>
                         </Canvas>
                         <TextBlock Text="{DynamicResource Main.Fixed}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                        <TextBlock x:Name="LblFixedKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        <TextBlock x:Name="LblFixedKey" Text="-" FontSize="10" Foreground="{StaticResource TextSub}" HorizontalAlignment="Center" Margin="0,1,0,0" MaxWidth="86" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
 
                 <!-- 캡처 목록 -->
                 <Button x:Name="BtnHistory" Style="{StaticResource CaptureButton}" Padding="8,3"
                         Click="History_Click" ToolTip="{DynamicResource Main.Tip.History}">
-                    <StackPanel Width="66">
+                    <StackPanel MinWidth="66">
                         <Canvas Width="30" Height="30">
                             <Rectangle Canvas.Left="7" Canvas.Top="2" Width="20" Height="16" RadiusX="2" RadiusY="2"
                                        Stroke="#9AA6B8" StrokeThickness="1.6"/>

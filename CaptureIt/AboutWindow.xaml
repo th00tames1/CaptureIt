@@ -6,12 +6,11 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         FontFamily="Malgun Gothic" UseLayoutRounding="True"
         KeyDown="Window_KeyDown">
+    <!-- 메인 창과 같은 이유로 그림자를 쓰지 않는다: 투명 레이어드 창에서 창 밖으로 번진 그림자가
+         잘려 꼭짓점에 회색 쐐기로 남기 때문. 옅은 테두리로만 구분한다. -->
     <Border Background="{StaticResource CardBg}" CornerRadius="14"
             BorderBrush="{StaticResource BorderSoft}" BorderThickness="1"
             MouseLeftButtonDown="Drag_MouseDown">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="2" Opacity="0.2" Color="#1F2937"/>
-        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

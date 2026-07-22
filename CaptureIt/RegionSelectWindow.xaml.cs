@@ -357,7 +357,12 @@ public partial class RegionSelectWindow : Window
 
         TitleLabel.Visibility = Visibility.Visible;
         TitleText.Text = hit.Title.Length > 60 ? hit.Title[..60] + "…" : hit.Title;
-        TitleLabel.Margin = new Thickness(Math.Max(8, r.X), Math.Max(8, r.Y - 38), 0, 0);
+        // 오른쪽 끝 창을 가리킬 때 제목 칩이 오버레이 밖으로 나가지 않게 좌우 모두 클램프한다.
+        // 실제 칩 폭으로 판정해야 짧은 제목이 창에서 멀리 떨어져 엉뚱한 곳을 가리키지 않는다.
+        TitleLabel.UpdateLayout();
+        double chipW = TitleLabel.ActualWidth > 0 ? TitleLabel.ActualWidth : 448;
+        double lx = Math.Max(8, Math.Min(r.X, Math.Max(8, ActualWidth - chipW - 8)));
+        TitleLabel.Margin = new Thickness(lx, Math.Max(8, r.Y - 38), 0, 0);
     }
 
     // ── 공통 ──────────────────────────────────────────────────────────────

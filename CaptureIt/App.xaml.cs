@@ -9,6 +9,7 @@ public partial class App : Application
     private static System.Threading.Mutex? _mutex;
     private static bool _ownsMutex;
     private static bool _started;
+    private bool _errorDialogOpen;   // 오류 대화상자가 겹겹이 쌓여 앱을 막지 않게
     public static AppSettings Settings { get; private set; } = new();
 
     protected override void OnStartup(StartupEventArgs e)
@@ -40,6 +41,7 @@ public partial class App : Application
         // 예기치 못한 오류로 앱 전체가 죽지 않도록 보호
         DispatcherUnhandledException += (_, ex) =>
         {
+            ex.Handled = true;
             try
             {
                 System.IO.File.AppendAllText(
@@ -47,9 +49,25 @@ public partial class App : Application
                     $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {ex.Exception}\n\n");
             }
             catch { }
-            MessageBox.Show($"{Loc.Get("Msg.Error")}\n{ex.Exception.Message}",
-                            Loc.Get("App.Name"), MessageBoxButton.OK, MessageBoxImage.Warning);
-            ex.Handled = true;
+
+            // 오류가 연달아 나도 모달 대화상자가 쌓여 앱을 막지 않도록 한 번에 하나만 띄운다
+            if (_errorDialogOpen) return;
+            _errorDialogOpen = true;
+            try
+            {
+                // 오류로 캡처 상태가 갇혔을 수 있으니 먼저 풀고 창을 되살린 뒤 안내한다.
+                // 이 핸들러 안에서 난 예외는 다시 이 핸들러로 오지 않고 프로세스를 죽이므로 반드시 감싼다.
+                try { if (Current.MainWindow is CaptureIt.MainWindow mw) mw.RecoverFromError(); }
+                catch { }
+
+                var text = $"{Loc.Get("Msg.Error")}\n{ex.Exception.Message}";
+                var title = Loc.Get("App.Name");
+                if (Current.MainWindow is { IsVisible: true } owner)
+                    MessageBox.Show(owner, text, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                    MessageBox.Show(text, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally { _errorDialogOpen = false; }
         };
 
         // 숨김 테스트 인자: --editor (전체 화면을 캡처해 편집기 바로 열기)

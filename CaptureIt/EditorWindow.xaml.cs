@@ -61,6 +61,13 @@ public partial class EditorWindow : Window
     public EditorWindow(MainWindow main)
     {
         InitializeComponent();
+        // 작은 화면(예: 1366×768, 또는 고배율의 1920×1080)에서 기본 크기가 화면 밖으로 나가지 않게 맞춘다.
+        // 최소 크기도 함께 낮춰야 WPF가 다시 최소값으로 강제로 키우지 않는다.
+        var work = SystemParameters.WorkArea;
+        MinWidth = Math.Min(MinWidth, work.Width - 40);
+        MinHeight = Math.Min(MinHeight, work.Height - 40);
+        Width = Math.Min(Width, work.Width - 40);
+        Height = Math.Min(Height, work.Height - 40);
         _main = main;
         HistoryList.ItemsSource = HistoryService.Items;
         HistoryService.Items.CollectionChanged += (_, _) => UpdateSidebarState();
@@ -301,16 +308,19 @@ public partial class EditorWindow : Window
 
     private static readonly double[] ThicknessChoices = { 1, 2, 3, 4, 6, 8, 12, 16, 24 };
 
-    /// <summary>굵기 콤보: 이름 대신 실제 두께의 선 미리보기 + 픽셀 값으로 채운다.</summary>
+    /// <summary>굵기 콤보: 이름 대신 굵기를 나타내는 짧은 막대 미리보기 + 픽셀 값으로 채운다.</summary>
     private void InitThicknessCombo()
     {
         foreach (var t in ThicknessChoices)
         {
-            double visual = Math.Min(t, 16);   // 아주 굵은 값도 항목 높이는 적당히
-            var panel = new StackPanel { Orientation = Orientation.Horizontal };
+            // 8 이하는 실제 두께 그대로, 그보다 굵으면 절반 비율로 눌러 담는다.
+            // 높이가 10,12,16으로 갈리므로 16과 24가 똑같아 보이던 문제도 없다.
+            double visual = t <= 8 ? t : 8 + (t - 8) / 2;
+            // 항목 높이를 고정: 얇은 값도 클릭 영역이 같고 목록 높이가 흔들리지 않는다.
+            var panel = new StackPanel { Orientation = Orientation.Horizontal, Height = 18 };
             panel.Children.Add(new Rectangle
             {
-                Width = 42,
+                Width = 24,                          // 길이는 고정, 굵기만 달라지는 '무게' 표시
                 Height = visual,
                 RadiusX = visual / 2,
                 RadiusY = visual / 2,
@@ -321,6 +331,8 @@ public partial class EditorWindow : Window
             {
                 Text = t.ToString(),
                 Margin = new Thickness(7, 0, 0, 0),
+                MinWidth = 16,                       // 한 자리/두 자리 숫자의 오른쪽 끝을 맞춘다
+                TextAlignment = TextAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Center,
                 Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128))
             });
@@ -400,11 +412,16 @@ public partial class EditorWindow : Window
                 case Key.Y: Redo_Click(this, new RoutedEventArgs()); e.Handled = true; break;
                 case Key.S: Save_Click(this, new RoutedEventArgs()); e.Handled = true; break;
                 case Key.C: Copy_Click(this, new RoutedEventArgs()); e.Handled = true; break;
+                case Key.M: ShowMain_Click(this, new RoutedEventArgs()); e.Handled = true; break;
             }
         }
     }
 
     private void NewCapture_Click(object sender, RoutedEventArgs e) => _ = _main.StartLastCapture();
+
+    /// <summary>메인 툴바 창을 다시 앞으로 가져온다 (Ctrl+M). 트레이로 숨겨졌거나 최소화돼 있어도
+    /// 복원하고, 편집기와 겹치지 않게 재배치한다.</summary>
+    private void ShowMain_Click(object sender, RoutedEventArgs e) => _main.ShowFromTray();
 
     /// <summary>드래그 중이던 미완성 도형을 캔버스에서 제거한다 (Esc·도구 전환 시).</summary>
     private void CancelActiveDrawing()

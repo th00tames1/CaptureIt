@@ -69,6 +69,9 @@ public static class WindowLayout
     public static void StackMainAndEditor(Window main, Window editor)
     {
         if (!main.IsVisible || !editor.IsVisible) return;
+        // 최대화된 창은 재배치하지 않는다: ActualWidth/Height(최대화 크기)와 Left/Top(복원 위치)을
+        // 섞어 실제로 존재하지 않는 사각형을 만들고, editor.Top/Height를 써서 복원 크기를 망가뜨린다.
+        if (main.WindowState != WindowState.Normal || editor.WindowState != WindowState.Normal) return;
 
         var work = SystemParameters.WorkArea;
         var m = new Rect(main.Left, main.Top, main.ActualWidth, main.ActualHeight);
@@ -107,6 +110,8 @@ public static class WindowLayout
     /// <summary>가상 화면(모든 모니터)을 벗어난 창을 안으로 끌어들인다 (모니터 구성 변경 대비).</summary>
     public static void ClampToWorkArea(Window w)
     {
+        if (double.IsNaN(w.Left) || double.IsNaN(w.Top)) return;   // 아직 배치되지 않은 창
+
         var work = new Rect(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
                             SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
 

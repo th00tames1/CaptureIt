@@ -30,7 +30,8 @@
         <!-- 창 캡처: 창 제목 라벨 -->
         <Border x:Name="TitleLabel" Background="#E62D7DF6" CornerRadius="6" Padding="10,5"
                 HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">
-            <TextBlock x:Name="TitleText" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+            <TextBlock x:Name="TitleText" Foreground="White" FontSize="12" FontWeight="SemiBold"
+                       MaxWidth="420" TextTrimming="CharacterEllipsis"/>
         </Border>
 
         <!-- 상단 안내 -->

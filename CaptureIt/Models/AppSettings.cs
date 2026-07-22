@@ -51,6 +51,10 @@ public class AppSettings
     public string HotkeyScroll { get; set; } = "Ctrl+Shift+S";
     public string HotkeyFixed { get; set; } = "Ctrl+Shift+D";
     public string HotkeyRepeat { get; set; } = "Ctrl+Shift+R";
+    // PrintScreen 단독 키 → 영역 캡처. 기본값은 사용 안 함("")이며 설정 창에서 켠다.
+    // 기본으로 켜면 업그레이드 시 모든 사용자의 전역 PrtSc(기본 동작: 화면 전체를 클립보드로)를
+    // 조용히 가로채고, Windows 11에서는 안내 문구가 계속 뜬다. 원한다면 "PrtSc"로 바꾸면 기본 사용.
+    public string HotkeyPrintScreen { get; set; } = "";
     // 메인 창 위치 기억 (null = 아직 없음). NaN은 JSON 직렬화가 불가능하므로 nullable 사용.
     public double? MainLeft { get; set; }
     public double? MainTop { get; set; }

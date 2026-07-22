@@ -48,6 +48,15 @@ Made by **Heechan Jeong** · MIT License
 | Fixed size | A pinned frame with round corner grips: drag the corners/edges diagonally or type an exact W×H, then Enter / double-click | `Ctrl+Shift+D` |
 | Repeat last region | Instantly re-captures the previous region | `Ctrl+Shift+R` |
 | Delayed | Pick the area first, then a 3/5/10 s countdown captures the live screen (great for open menus) | (in-app) |
+| **Print Screen** | The `PrtSc` key starts a region capture. Off by default; enable it in Settings → Hotkeys | `PrtSc` |
+
+> **Print Screen on Windows 11**: Windows binds `PrtSc` to the Snipping Tool by default, which
+> takes priority over any app. CaptureIt detects this and tells you how to free the key
+> (Settings → Accessibility → Keyboard). CaptureIt never changes that Windows setting itself.
+>
+> **If anything ever gets stuck** (an overlay that will not close, hotkeys that stop responding),
+> press `Ctrl+Alt+Shift+Q` — or use *Cancel capture and show window* in the tray menu — to
+> cancel the capture in progress and bring the main window back.
 
 > Every hotkey can be changed in Settings: click a field, press the combination you
 > want (or Backspace to disable it), and save. If a default hotkey is taken by another
@@ -76,6 +85,7 @@ Made by **Heechan Jeong** · MIT License
 - English/Korean UI switch · run at Windows startup · lives in the tray
 - Auto-copies each capture to the clipboard (bitmap + PNG + file at once)
 - Window-overlap-free placement, pin-on-top toolbar, remembered positions
+- **Main window** button (and `Ctrl+M`) in the editor brings the capture toolbar back whenever you lose it
 - In-app updates: checks GitHub for new releases and installs them in one click (Settings → Updates, or the pop-up when a new version ships)
 
 ## Cross-platform edition (Linux · macOS)

@@ -35,9 +35,12 @@
     <sys:String x:Key="Main.Hint.Saved">Saved: {0}</sys:String>
     <sys:String x:Key="Main.Hint.Copied">Copied to the clipboard.</sys:String>
     <sys:String x:Key="Main.Hint.HistorySaveFailed">Could not save the capture. The image was copied to the clipboard.</sys:String>
+    <sys:String x:Key="Main.Hint.Rescued">The capture in progress was cancelled and the window restored.</sys:String>
     <sys:String x:Key="Word.Region">region</sys:String>
     <sys:String x:Key="Word.Window">window</sys:String>
     <sys:String x:Key="Word.Full">full screen</sys:String>
+    <sys:String x:Key="Word.PrintScreen">PrintScreen</sys:String>
+    <sys:String x:Key="Main.Hint.PrintScreenBlocked">Windows is using the PrintScreen key for Snipping Tool. Turn it off in Windows keyboard settings.</sys:String>
 
     <!-- Additional capture modes -->
     <sys:String x:Key="Main.Element">Element</sys:String>
@@ -64,6 +67,7 @@
     <sys:String x:Key="Tray.RepeatCapture">Capture last region again ({0})</sys:String>
     <sys:String x:Key="Tray.History">Capture list</sys:String>
     <sys:String x:Key="Tray.About">About</sys:String>
+    <sys:String x:Key="Tray.Rescue">Cancel capture and show window ({0})</sys:String>
     <sys:String x:Key="Tray.Exit">Exit</sys:String>
     <sys:String x:Key="Tray.Tooltip">CaptureIt: screen capture</sys:String>
     <sys:String x:Key="Tray.Background">Running in the tray. Use the hotkeys to capture.</sys:String>
@@ -76,6 +80,8 @@
     <sys:String x:Key="Editor.Title">CaptureIt Editor</sys:String>
     <sys:String x:Key="Editor.NewCapture">New capture</sys:String>
     <sys:String x:Key="Editor.Tip.NewCapture">Starts a new capture using the last capture mode</sys:String>
+    <sys:String x:Key="Editor.MainWindow">Main window</sys:String>
+    <sys:String x:Key="Editor.Tip.MainWindow">Show the main window (Ctrl+M)</sys:String>
     <sys:String x:Key="Editor.Select">Select</sys:String>
     <sys:String x:Key="Editor.Pen">Pen</sys:String>
     <sys:String x:Key="Editor.Highlight">Highlighter</sys:String>
@@ -196,6 +202,8 @@
     <sys:String x:Key="Settings.HotkeyElement">Capture element</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">Scroll capture</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">Fixed-size capture</sys:String>
+    <sys:String x:Key="Settings.HotkeyPrintScreen">PrintScreen key (region capture) — on/off only</sys:String>
+    <sys:String x:Key="Settings.PrintScreenBlocked">Windows currently uses the PrintScreen key to open Snipping Tool, so CaptureIt cannot receive it.&#x0a;Turn that off in Windows keyboard settings — the shortcut starts working right away.&#x0a;&#x0a;Open Windows settings now?</sys:String>
     <sys:String x:Key="Settings.Cancel">Cancel</sys:String>
     <sys:String x:Key="Settings.Save">Save</sys:String>
     <sys:String x:Key="Settings.FolderMissing">Enter a save folder.</sys:String>
