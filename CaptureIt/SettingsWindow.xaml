@@ -132,7 +132,7 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
-                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBox Grid.Row="0" Grid.Column="0" x:Name="HkRegion" Style="{StaticResource HotkeyBox}" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRegion}" FontSize="12" Margin="16,0,0,0" VerticalAlignment="Center"/>
@@ -148,11 +148,24 @@
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="{DynamicResource Settings.HotkeyFixed}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
                             <TextBox Grid.Row="6" Grid.Column="0" x:Name="HkRepeat" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="HotkeyBox_PreviewKeyDown"/>
                             <TextBlock Grid.Row="6" Grid.Column="1" Text="{DynamicResource Settings.HotkeyRepeat}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="7" Grid.Column="0" x:Name="HkPrintScreen" Style="{StaticResource HotkeyBox}" Margin="0,6,0,0" PreviewKeyDown="PrintScreenBox_PreviewKeyDown"/>
-                            <TextBlock Grid.Row="7" Grid.Column="1" Text="{DynamicResource Settings.HotkeyPrintScreen}" FontSize="12" Margin="16,6,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
                         </Grid>
+
+                        <!-- PrintScreen은 조합을 바꿀 수 없는 고정 키라 사용/해제만 있는 체크박스로 둔다 -->
+                        <CheckBox x:Name="ChkPrintScreen" Content="{DynamicResource Settings.HotkeyPrintScreen}"
+                                  FontSize="12" Margin="0,12,0,0"
+                                  Checked="PrintScreen_Toggled" Unchecked="PrintScreen_Toggled"/>
+                        <!-- Windows가 PrtSc를 캡처 도구에 쓰고 있을 때만 안내 + 설정 열기 버튼을 보여준다 -->
+                        <StackPanel x:Name="PrtScClaimedPanel" Visibility="Collapsed" Margin="24,6,0,0">
+                            <TextBlock Text="{DynamicResource Settings.PrintScreenClaimed}" FontSize="11"
+                                       Foreground="{StaticResource TextMain}" TextWrapping="Wrap"/>
+                            <Button Style="{StaticResource GhostButton}" Padding="10,5" Margin="0,6,0,0"
+                                    HorizontalAlignment="Left" Click="OpenWinKeyboard_Click">
+                                <TextBlock Text="{DynamicResource Settings.OpenWindowsKeyboard}" FontSize="12"/>
+                            </Button>
+                        </StackPanel>
+
                         <TextBlock Text="{DynamicResource Settings.HotkeyHint}" FontSize="11"
-                                   Foreground="{StaticResource TextSub}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                   Foreground="{StaticResource TextSub}" Margin="0,12,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 

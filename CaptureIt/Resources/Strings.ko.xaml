@@ -205,8 +205,9 @@
     <sys:String x:Key="Settings.HotkeyElement">화면 요소 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">스크롤 캡처</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">고정 크기 캡처</sys:String>
-    <sys:String x:Key="Settings.HotkeyPrintScreen">PrintScreen 키 (영역 캡처) — 사용/해제만</sys:String>
-    <sys:String x:Key="Settings.PrintScreenBlocked">현재 Windows가 PrintScreen 키를 캡처 도구(Snipping Tool)에 연결해 두어 CaptureIt이 이 키를 받을 수 없습니다.&#x0a;Windows 키보드 설정에서 해제하면 바로 사용할 수 있습니다.&#x0a;&#x0a;지금 Windows 설정을 열까요?</sys:String>
+    <sys:String x:Key="Settings.HotkeyPrintScreen">PrintScreen 키로 영역 캡처</sys:String>
+    <sys:String x:Key="Settings.PrintScreenClaimed">지금 Windows가 PrintScreen 키를 캡처 도구(Snipping Tool)에 쓰고 있어 CaptureIt에서는 아직 동작하지 않습니다. Windows 키보드 설정에서 해제하면 바로 사용할 수 있습니다.</sys:String>
+    <sys:String x:Key="Settings.OpenWindowsKeyboard">Windows 키보드 설정 열기</sys:String>
     <sys:String x:Key="Settings.Cancel">취소</sys:String>
     <sys:String x:Key="Settings.Save">저장</sys:String>
     <sys:String x:Key="Settings.FolderMissing">저장 폴더를 입력하세요.</sys:String>

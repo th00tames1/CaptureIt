@@ -205,8 +205,9 @@
     <sys:String x:Key="Settings.HotkeyElement">Capture element</sys:String>
     <sys:String x:Key="Settings.HotkeyScroll">Scroll capture</sys:String>
     <sys:String x:Key="Settings.HotkeyFixed">Fixed-size capture</sys:String>
-    <sys:String x:Key="Settings.HotkeyPrintScreen">PrintScreen key (region capture) — on/off only</sys:String>
-    <sys:String x:Key="Settings.PrintScreenBlocked">Windows currently uses the PrintScreen key to open Snipping Tool, so CaptureIt cannot receive it.&#x0a;Turn that off in Windows keyboard settings — the shortcut starts working right away.&#x0a;&#x0a;Open Windows settings now?</sys:String>
+    <sys:String x:Key="Settings.HotkeyPrintScreen">Use the PrintScreen key for region capture</sys:String>
+    <sys:String x:Key="Settings.PrintScreenClaimed">Windows is currently using the PrintScreen key for Snipping Tool, so it won't work in CaptureIt yet. Turn that off in Windows keyboard settings — then it works right away.</sys:String>
+    <sys:String x:Key="Settings.OpenWindowsKeyboard">Open Windows keyboard settings</sys:String>
     <sys:String x:Key="Settings.Cancel">Cancel</sys:String>
     <sys:String x:Key="Settings.Save">Save</sys:String>
     <sys:String x:Key="Settings.FolderMissing">Enter a save folder.</sys:String>
