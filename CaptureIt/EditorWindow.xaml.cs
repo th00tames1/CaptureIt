@@ -928,27 +928,29 @@ public partial class EditorWindow : Window
     {
         CommitActiveText();
 
-        // 줌을 잠시 1로 되돌려 원본 크기로 렌더링
-        var savedZoom = _zoom;
-        CanvasHost.LayoutTransform = Transform.Identity;
-        CanvasHost.UpdateLayout();
-
         int w = _image!.PixelWidth, h = _image.PixelHeight;
         var dv = new DrawingVisual();
         using (var dc = dv.RenderOpen())
-            // Viewbox를 절대 좌표로 고정: DropShadowEffect가 부풀린 경계 때문에
-            // 픽셀이 밀리거나 리샘플링되는 것을 방지한다 (저장 반복 시 열화 원인)
-            dc.DrawRectangle(new VisualBrush(CanvasHost)
+        {
+            // 원본 이미지는 직접 그린다 (레이아웃 위치·줌·효과와 무관한 절대 좌표).
+            dc.DrawImage(_image, new Rect(0, 0, w, h));
+
+            // 주석은 DrawCanvas '자체 좌표계'를 브러시로 뜬다.
+            // CanvasHost를 뜨면 ScrollViewer 가운데 정렬 오프셋이 딸려 들어와 결과가 밀려서
+            // 잘리거나 사라진다(작은 이미지일수록 심함). DrawCanvas는 항상 (0,0)에서 시작하고
+            // CanvasHost의 그림자 효과도 타지 않으므로 픽셀 밀림 없이 정확히 합성된다.
+            dc.DrawRectangle(new VisualBrush(DrawCanvas)
             {
                 Stretch = Stretch.None,
+                AlignmentX = AlignmentX.Left,
+                AlignmentY = AlignmentY.Top,
                 ViewboxUnits = BrushMappingMode.Absolute,
                 Viewbox = new Rect(0, 0, w, h)
             }, null, new Rect(0, 0, w, h));
+        }
         var rtb = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
         rtb.Render(dv);
         rtb.Freeze();
-
-        SetZoom(savedZoom);
         return rtb;
     }
 
